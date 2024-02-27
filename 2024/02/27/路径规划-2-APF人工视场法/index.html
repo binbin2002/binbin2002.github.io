@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>路径规划(2)--APF人工视场法 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="路径规划(2)–APF人工视场法参考文章： 知乎：机器人路径规划–人工势场法 路径规划-人工势场法(Artificial Potential Field) 一、算法介绍人工势场法是一种经典的机器人路径规划算法。该算法将目标和障碍物分别看作对机器人有引力和斥力的物体，机器人沿引力和斥力的合力来进行运动。类似于电荷一样：同性电荷相斥，异性电荷相吸的原理，机器人会在电场力的作用下沿着某条路径向终点移动，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="路径规划(2)--APF人工视场法">
+<meta property="og:url" content="http://example.com/2024/02/27/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="路径规划(2)–APF人工视场法参考文章： 知乎：机器人路径规划–人工势场法 路径规划-人工势场法(Artificial Potential Field) 一、算法介绍人工势场法是一种经典的机器人路径规划算法。该算法将目标和障碍物分别看作对机器人有引力和斥力的物体，机器人沿引力和斥力的合力来进行运动。类似于电荷一样：同性电荷相斥，异性电荷相吸的原理，机器人会在电场力的作用下沿着某条路径向终点移动，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/1.webp">
+<meta property="og:image" content="http://example.com/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/2.png">
+<meta property="og:image" content="http://example.com/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/3.webp">
+<meta property="article:published_time" content="2024-02-27T11:29:05.000Z">
+<meta property="article:modified_time" content="2024-02-27T12:09:31.239Z">
+<meta property="article:author" content="Yang Wenbin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/1.webp">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-路径规划-2-APF人工视场法" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/27/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/" class="article-date">
+  <time class="dt-published" datetime="2024-02-27T11:29:05.000Z" itemprop="datePublished">2024-02-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      路径规划(2)--APF人工视场法
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="路径规划-2-–APF人工视场法"><a href="#路径规划-2-–APF人工视场法" class="headerlink" title="路径规划(2)–APF人工视场法"></a>路径规划(2)–APF人工视场法</h1><p>参考文章：</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/66265861">知乎：机器人路径规划–人工势场法</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/144816424">路径规划-人工势场法(Artificial Potential Field)</a></p>
+<h2 id="一、算法介绍"><a href="#一、算法介绍" class="headerlink" title="一、算法介绍"></a>一、算法介绍</h2><p>人工势场法是一种经典的机器人路径规划算法。该算法将目标和障碍物分别看作对机器人有引力和斥力的物体，机器人沿引力和斥力的合力来进行运动。类似于电荷一样：同性电荷相斥，异性电荷相吸的原理，机器人会在电场力的作用下沿着某条路径向终点移动，并避开障碍物。</p>
+<p><img src="/./%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/1.webp"></p>
+<p>类似的，我们也可以把构型空间比作一个有起伏地形的区域。其中，起点和障碍物位于较高的区域，终点位于较低的区域，机器人视作一个球体。那么在重力的作用下，机器人将沿着某条轨迹从较高的起点滑落到较低的终点，并避开较高的障碍物。如图2所示。</p>
+<p><img src="/./%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/2.png"></p>
+<h2 id="二、算法原理"><a href="#二、算法原理" class="headerlink" title="二、算法原理"></a>二、算法原理</h2><h3 id="1-引力场-Attractive-Field-和斥力场-Repulsive-Field"><a href="#1-引力场-Attractive-Field-和斥力场-Repulsive-Field" class="headerlink" title="1.引力场(Attractive Field)和斥力场(Repulsive Field)"></a>1.引力场(Attractive Field)和斥力场(Repulsive Field)</h3><p>人工势场包含两种两种力场:运动目标位置所形成的引力场(Attractive Field)和障碍物所形成的斥力场(Repulsive Field)。<br>$$<br>U(q)&#x3D;U_{att}(q)+U_{rep}(q)<br>$$</p>
+<p>其中$U_{att}$是引力场，引导机器人向目标位置运动；$U_{rep}$是斥力场，引导机器人避开障碍物。</p>
+<p>其中，最常见的引力势函数表达式如下：<br>$$<br>U_{att}(q)&#x3D;\frac{1}{2}\zeta d^2(q,q_{goal})<br>$$</p>
+<p>$\zeta——引力增益$</p>
+<p>$d^2(q,q_{goal})——当前点到目标点 之间的距离$</p>
+<p>最常见的斥力势函数表达式如下：<br>$$<br>U_{req}(q)&#x3D; \begin{cases}<br>            \frac{1}{2} \zeta(\frac{1}{D(q)}-\frac{1}{Q^*})^2  \quad D(q)\leq Q^<em>\<br>            0 \quad  D(q)&gt; Q^</em><br>            \end{cases}<br>$$</p>
+<p>其中，D(q)是距离最近障碍物的距离；<br>$Q^*$是斥力增益常量；是障碍物的作用阈值范围，在该阈值范围之内，障碍物才会产生斥力，超出此范围则不产生斥力影响</p>
+<h3 id="2、梯度下降-Gradient-Descent"><a href="#2、梯度下降-Gradient-Descent" class="headerlink" title="2、梯度下降(Gradient Descent)"></a>2、梯度下降(Gradient Descent)</h3><h3 id="3、-局部最优解陷阱-Local-Minima-Trap"><a href="#3、-局部最优解陷阱-Local-Minima-Trap" class="headerlink" title="3、 局部最优解陷阱(Local Minima Trap)"></a>3、 局部最优解陷阱(Local Minima Trap)</h3><p>势场算法的挑战之一就是是局部最小值陷阱问题，当所有人工势场(引力势场和斥力势场)相互抵消时，比如在障碍物正好处于机器人和目标位置之间就可能会发生这种情况。虽然这些局部极小值点梯度为零，但并不是我们想要的目标位置。</p>
+<p><img src="/./%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/3.webp"></p>
+<p>解决局部最小值陷阱的方法有很多，一种方法是引入High Level的Planner, 使得机器人不仅可以随时使用传感器的检测信息，而且仍然保持全局规划的能力。</p>
+<p>还有一些补救式的方案，允许机器人陷入局部最优，然后再采用其它方案修复这个问题，比如我们可以在局部最小值处加入一个扰动(随机行走)或回溯，以跳出局部极小值。</p>
+<h2 id="三、算法步骤"><a href="#三、算法步骤" class="headerlink" title="三、算法步骤"></a>三、算法步骤</h2><p>略</p>
+<h2 id="四、代码展示"><a href="#四、代码展示" class="headerlink" title="四、代码展示"></a>四、代码展示</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><span class="line">import math</span><br><span class="line">import matplotlib.pyplot as plt</span><br><span class="line">import numpy as np</span><br><span class="line">import cv2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def avoid_APF(P_start, V_start, P_aim, mymap, Kg=0.5, kr=20,</span><br><span class="line">              Q_search=20, epsilon=2, Vl=2, Ul=2, dt=0.2, draw_ontime=True):</span><br><span class="line">    &quot;&quot;&quot;</span><br><span class="line">    :param P_start: 初始位置</span><br><span class="line">    :param V_start: 初始速度</span><br><span class="line">    :param P_aim: 目标点</span><br><span class="line">    :param mymap: 储存有障碍物信息的0-1二值化地图，0表示障碍物</span><br><span class="line">    :param Kg: 避障控制器参数（引力）</span><br><span class="line">    :param kr: 避障控制器参数（斥力）</span><br><span class="line">    :param Q_search: 搜索障碍物距离阈值</span><br><span class="line">    :param epsilon: 误差上限</span><br><span class="line">    :param Vl: 速率上限</span><br><span class="line">    :param Ul: 控制器输出上限</span><br><span class="line">    :param dt: 迭代时间</span><br><span class="line">    :param draw_ontime:</span><br><span class="line">    :return: 无</span><br><span class="line">    &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">    def distance(A, B):</span><br><span class="line">        return math.sqrt((A[0] - B[0]) ** 2 + (A[1] - B[1]) ** 2)</span><br><span class="line"></span><br><span class="line">    def myatan(a, b): #反正切函数</span><br><span class="line">        if a == 0 and b == 0:</span><br><span class="line">            return None</span><br><span class="line">        if a == 0:</span><br><span class="line">            return math.pi / 2 if b &gt; 0 else math.pi * 3 / 2</span><br><span class="line">        if b == 0:</span><br><span class="line">            return 0 if a &gt; 0 else -math.pi</span><br><span class="line">        if b &gt; 0:</span><br><span class="line">            return math.atan(b / a) if a &gt; 0 else (math.atan(b / a) + math.pi)</span><br><span class="line">        return math.atan(b / a + 2 * math.pi) if a &gt; 0 else math.atan(b / a) + math.pi</span><br><span class="line"></span><br><span class="line">    def isClockwise(a, b): #判断是否为顺时针方向</span><br><span class="line">        da = b - a</span><br><span class="line">        if 0 &lt; da &lt; math.pi or -math.pi * 2 &lt; da &lt; -math.pi:</span><br><span class="line">            return False</span><br><span class="line">        return True</span><br><span class="line"></span><br><span class="line">    # 读取初始状态</span><br><span class="line">    P_start = np.array(P_start)        # 初始位置</span><br><span class="line">    V_start = np.array(V_start).T      # 初始速度</span><br><span class="line">    pos_record = [P_start]  # 记录位置</span><br><span class="line">    # 地图尺寸</span><br><span class="line">    size_x = mymap.shape[0]</span><br><span class="line">    size_y = mymap.shape[1]</span><br><span class="line"></span><br><span class="line">    # 设置绘图参数</span><br><span class="line">    plt.axis(&#x27;equal&#x27;)</span><br><span class="line">    plt.xlim(0, size_x)</span><br><span class="line">    plt.ylim(0, size_y)</span><br><span class="line">    # 绘制地图（障碍物和航路点）</span><br><span class="line">    plt.imshow(mymap.T)</span><br><span class="line">    plt.plot([P_start[0], P_aim[0]], [P_start[1], P_aim[1]], &#x27;o&#x27;)</span><br><span class="line">    # 计算周边障碍物搜素范围（在-90到90度范围）</span><br><span class="line">    direction_search = np.array([-2, -1, 0, 1, 2]) * math.pi / 4</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    # 开始飞行</span><br><span class="line">    pos_num = 0         # 已经记录的位置的总数</span><br><span class="line">    P_curr = P_start    # 当前位置</span><br><span class="line">    V_curr = V_start    # 当前速度</span><br><span class="line">    ob_flag = False     # 是否处于局部极小值</span><br><span class="line">    while distance(P_curr, P_aim) &gt; epsilon:</span><br><span class="line">        angle_curr = myatan(V_curr[0], V_curr[1])               # 当前无人机朝向</span><br><span class="line">        Frep = np.array([0, 0])                                 # 斥力初始化为0</span><br><span class="line">        for dir in direction_search:                            # 搜索周围障碍物</span><br><span class="line">            angle_search = angle_curr + dir</span><br><span class="line">            for dis_search in range(Q_search):</span><br><span class="line">                P_search = [int(P_curr[0] + dis_search * math.sin(angle_search)),</span><br><span class="line">                            int(P_curr[1] + dis_search * math.cos(angle_search))]</span><br><span class="line">                if not (0 &lt;= P_search[0] &lt; size_x and           # 超出地图范围和地图内障碍，均视作障碍物</span><br><span class="line">                        0 &lt;= P_search[1] &lt; size_y and</span><br><span class="line">                        mymap[int(P_search[0])][int(P_search[1])] == 1):</span><br><span class="line">                    d_search = distance(P_curr, P_search)       # 被搜索点与当前点的距离</span><br><span class="line">                    Frep = Frep + \</span><br><span class="line">                           kr * (1 / d_search - 1 / Q_search) / (d_search ** 3) * \</span><br><span class="line">                           (P_curr - P_search) * (distance(P_search, P_aim) ** 2)</span><br><span class="line">                    break</span><br><span class="line">        Fatt = -Kg * (P_curr - P_aim)                           # 计算引力</span><br><span class="line">        if pos_num &gt;= 1:                                        # 从第二个时刻开始，判断是否陷入局部极小值</span><br><span class="line">            p0 = pos_record[pos_num - 1]                        # 取上两个时刻物体相对终点的位移</span><br><span class="line">            p1 = pos_record[pos_num - 2]</span><br><span class="line">            Vra = (distance(p0, P_aim) - distance(p1, P_aim)) / dt #速度变化率</span><br><span class="line">            if abs(Vra) &lt; 0.6 * Vl:                              # 陷入局部极小值</span><br><span class="line">                if not ob_flag:                                  # 之前不是局部极小状态时，根据当前状态计算斥力偏向角theta</span><br><span class="line">                    angle_g = myatan(Fatt[0], Fatt[1])</span><br><span class="line">                    angle_r = myatan(Frep[0], Frep[1])</span><br><span class="line">                    if angle_r is None or angle_g is None:</span><br><span class="line">                        print(&#x27;111&#x27;)</span><br><span class="line">                    if isClockwise(angle_g, angle_r):</span><br><span class="line">                        theta = 15 * math.pi / 180</span><br><span class="line">                    else:</span><br><span class="line">                        theta = -15 * math.pi / 180</span><br><span class="line">                    ob_flag = True</span><br><span class="line">                # 之前为局部极小，则继续使用上一时刻的斥力偏向角theta</span><br><span class="line">                Frep = [math.cos(theta) * Frep[0] - math.sin(theta) * Frep[1],</span><br><span class="line">                        math.sin(theta) * Frep[0] + math.cos(theta) * Frep[1]]</span><br><span class="line">            else:                                               # 离开局部极小值</span><br><span class="line">                ob_flag = False</span><br><span class="line">            l = Vl</span><br><span class="line">            Kv = 3 * l / (2 * l + abs(Vra))</span><br><span class="line">            Kd = 15 * math.exp(-(distance(P_curr, P_aim) - 3) ** 2 / 2) + 1</span><br><span class="line">            Ke = 3</span><br><span class="line">            Fatt = Kv * Kd * Ke * Fatt                          # 改进引力</span><br><span class="line">        U = Fatt + Frep                                         # 计算合力</span><br><span class="line">        if np.linalg.norm(U, ord=np.inf) &gt; Ul:                  # 控制器输出限幅</span><br><span class="line">            U = Ul * U / np.linalg.norm(U, ord=np.inf)</span><br><span class="line">        V_curr = V_curr + U * dt                                # 计算速度</span><br><span class="line">        if np.linalg.norm(V_curr) &gt; Vl:                         # 速度限幅</span><br><span class="line">            V_curr = Vl * V_curr / np.linalg.norm(V_curr)</span><br><span class="line">        P_curr = P_curr + V_curr * dt                           # 计算位置</span><br><span class="line">        print(P_curr, V_curr, distance(P_curr, P_aim))</span><br><span class="line">        pos_record.append(P_curr)</span><br><span class="line">        pos_num += 1</span><br><span class="line">        if draw_ontime:</span><br><span class="line">            plt.plot([float(pos_record[pos_num - 1][0]), float(pos_record[pos_num][0])],</span><br><span class="line">                     [float(pos_record[pos_num - 1][1]), float(pos_record[pos_num][1])], &#x27;r&#x27;)</span><br><span class="line">            plt.pause(0.0001)</span><br><span class="line">            plt.ioff()</span><br><span class="line">    pos_record = np.array(pos_record).T</span><br><span class="line">    plt.plot(pos_record[0], pos_record[1], &#x27;--&#x27;)</span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    # 读取地图图像并二值化</span><br><span class="line">    img = cv2.imread(&#x27;code_python/map_avoid/6.png&#x27;)</span><br><span class="line">    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)</span><br><span class="line">    retval, dst = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU) #OTSU与之分割</span><br><span class="line">    dst = cv2.dilate(dst, None, iterations=1) #膨胀</span><br><span class="line">    dst = cv2.erode(dst, None, iterations=4) / 255 #腐蚀并归一化</span><br><span class="line">    avoid_APF(P_start=[15, 15], V_start=[0, 2], P_aim=[400, 400], Q_search=15, mymap=dst)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/27/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/" data-id="clt4bso4j0004bwv627nr95ud" data-title="路径规划(2)--APF人工视场法" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/02/26/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">路径规划(1)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92/" rel="tag">路径规划</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92/" style="font-size: 10px;">路径规划</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">January 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/27/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-2-APF%E4%BA%BA%E5%B7%A5%E8%A7%86%E5%9C%BA%E6%B3%95/">路径规划(2)--APF人工视场法</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/26/%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92-1/">路径规划(1)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/01/09/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 Yang Wenbin<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
