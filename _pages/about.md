@@ -21,7 +21,7 @@ I am now studying in <a href='https://rsgis.whu.edu.cn/'>School of Remote Sensin
 
 - 🌱 I’m currently learning modern C++,Python etc.
 - 🔭 My interesting field is computer vision& SLAM. Too unfamiliar with ML/DL to have interest at the point.
-- 📫 If you have any question, feel free to contact me.
+- 📫 If you have any question, feel free to contact me.my email:<u>wenbin_yang@whu.edu.cn</u>
 
 
 # 🔥 News
