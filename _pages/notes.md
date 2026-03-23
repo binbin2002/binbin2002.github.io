@@ -5,7 +5,7 @@ excerpt: "My notes posts"
 author_profile: false
 ---
 
-#Blog
+#My Notes
 
 {% assign posts = site.notes | sort: "date" | reverse %}
 {% for post in posts %}
