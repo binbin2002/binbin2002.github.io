@@ -129,7 +129,7 @@ defaults:
   #_blog
   - scope:
       path: ""
-      type: blog
+      type: notes
     values:
       layout: default
       author_profile: true
