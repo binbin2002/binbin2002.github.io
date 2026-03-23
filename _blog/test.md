@@ -1,3 +1,4 @@
+---
 title: "Test Post: My First Blog Note"
 date: 2026-03-23
 excerpt: "A quick test post for my blog collection."
@@ -5,6 +6,8 @@ tags:
 - robotics
 - navigation
 - vln
+---
+
 Test Post
 This is a test note for my blog collection.
 

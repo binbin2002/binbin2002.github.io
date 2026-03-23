@@ -57,4 +57,4 @@ He is now persuing a Master's degree in Remote Sensing at School of Remote Sensi
 - *2021.03*, Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet.  \| [\[video\]](https://github.com/) -->
 
 # 💻 Internships
-- *2025.08 - 2025.10*, Robotics Navigation Algorithm Intern, Fengke (Wuhan) Technology Co., Ltd., Wuhan, China..
+- *2025.08 - 2025.10*, Robotics Navigation Algorithm Intern, Fengke (Wuhan) Technology Co., Ltd., Wuhan, China.
