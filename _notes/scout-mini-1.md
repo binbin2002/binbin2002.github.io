@@ -25,7 +25,6 @@ tags:
 
 <font color=Red>注意：一根usb to can线300 money，用的时候要小心保护</font>
 
-
 ## 2.测试硬件与CAN通讯
 ### 设置CAN_TO_USB对应适配器，检测是否连接成功
 1.启动gs_usb 内核模块
@@ -57,6 +56,7 @@ candump can0
 **3.1.下载ROS相关依赖**
     首先需要根据自己的ROS版本安装对应的依赖，我的是ubuntu18，对应的ROS为melodic
 ```
+
 #根据自己ROS版本更改命令
 sudo apt install ros-melodic-controller-manager
 sudo apt install ros-melodic-joint-state-publisher-gui
