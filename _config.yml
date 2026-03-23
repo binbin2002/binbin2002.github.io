@@ -172,6 +172,6 @@ compress_html:
 
 # collections:
 collections:
-  blog:
+  notes:
     output: true
-    permalink: /blog/:path/
+    permalink: /notes/:path/

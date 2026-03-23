@@ -1,5 +1,5 @@
 ---
-title: "Test Post: My First Blog Note"
+title: "Test Post: My First Note"
 date: 2026-03-23
 excerpt: "A quick test post for my blog collection."
 tags:
