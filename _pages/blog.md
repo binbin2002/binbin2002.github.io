@@ -5,8 +5,10 @@ excerpt: "My blog posts"
 author_profile: true
 ---
 
-# 📝 Blog Posts
+#Blog
 
-## Recent Posts
-- [Post Title 1](./blog/post1.md)
-- [Post Title 2](./blog/post2.md)
+{% assign posts = site.blog | sort: "date" | reverse %}
+{% for post in posts %}
+
+[{{ post.title }}]({{ post.url }}){% if post.date %} ({{ post.date | date: "%Y-%m-%d" }}){% endif %}
+{% endfor %}
