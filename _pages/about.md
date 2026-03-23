@@ -17,11 +17,11 @@ redirect_from:
 
 <span class='anchor' id='about-me'></span>
 
-I am now persuing a Master's degree in Remote Sensing at School of Remote Sensing and Information Engineering, Wuhan University. I received my Bachelor's degree in Spatial Information and Digital Technology from Wuhan University. My research interests primarily focus on robotics perception and navigation.
+He is now persuing a Master's degree in Remote Sensing at School of Remote Sensing and Information Engineering, Wuhan University. He received his Bachelor's degree in Spatial Information and Digital Technology from Wuhan University. His research interests primarily focus on robotics perception and navigation.
 
-- 🌱 My research primarily focuses on robotics perception and navigation. including SLAM, motion planning.
-- 🔭 My current research interests include Vision-and-Language Navigation (VLN), Reinforcement Learning, and Embodied AI.
-- 📫 I am currently seeking internship opportunities in roobotics.Free free to contact me at <u>wenbin_yang@whu.edu.cn</u>
+- 🌱 His research primarily focuses on robotics perception and navigation. including SLAM, motion planning.
+- 🔭 His current interests include Vision-and-Language Navigation (VLN), Reinforcement Learning, and Embodied AI.
+- 📫 He is currently seeking internship opportunities in roobotics. Free free to contact him at <u>wenbin_yang@whu.edu.cn</u>
 
 
 # 🔥 News
@@ -42,19 +42,19 @@ I am now persuing a Master's degree in Remote Sensing at School of Remote Sensin
 </div>
 </div>
 
-- [Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet](https://github.com), A, B, C, **CVPR 2020**
+
 
 # 🎖 Honors and Awards
-- *2021.10* Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet. 
-- *2021.09* Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet. 
+- *2024.06* Outstanding Graduate and Excellent Graduation Project, School of Remote Sensing and Information Engineering, Wuhan University. 
+- *2023.09*  Outstanding Student Award, National Inspirational Scholarship, and Second-class Scholarship, Wuhan University.. 
 
 # 📖 Educations
 - *2024.09 - 2027.06 (now)*, Master, School of Remote Sensing and Information Engineering, Wuhan University . 
-- *2020.09 - 2024.06*, Undergraduate, School of Remote Sensing and Information Engineering, Wuhan University. 
+- *2020.09 - 2024.06*, B.E. in Spatial Information and Digital Technology, Wuhan University. 
 
 <!-- # 💬 Invited Talks
 - *2021.06*, Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet. 
 - *2021.03*, Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet.  \| [\[video\]](https://github.com/) -->
 
 # 💻 Internships
-- *2019.05 - 2020.02*, [Lorem](https://github.com/), China.
+- *2025.08 - 2025.10*, Robotics Navigation Algorithm Intern, Fengke (Wuhan) Technology Co., Ltd., Wuhan, China..
