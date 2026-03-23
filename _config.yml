@@ -7,7 +7,7 @@
 
 # Site Settings
 title                    : "Yang Wenbin"
-description              : "Hi everyone. "
+description              : "Hi everyone. My name is Yang Wenbin. I am a master student at Wuhan University, China. My research interests include machine learning, motion planning and Visual language navigation."
 repository               : "binbin2002.github.io"
 google_scholar_stats_use_cdn : false
 # google analytics
@@ -125,6 +125,14 @@ defaults:
     values:
       layout: default
       author_profile: true
+  
+  #_blog
+  - scope:
+    path: ""
+    type: blog
+    values:
+      layout: default
+      author_profile: true
 
 
 # Sass/SCSS
@@ -160,3 +168,10 @@ compress_html:
   clippings: all
   ignore:
     envs: development
+
+
+# collections:
+collections:
+  blog:
+    output: true
+  permalinks: /blog/:path/
