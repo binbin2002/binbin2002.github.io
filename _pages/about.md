@@ -2,7 +2,7 @@
 permalink: /
 title: ""
 excerpt: ""
-author_profile: true
+author_profile: true 
 redirect_from: 
   - /about/
   - /about.html
@@ -17,16 +17,16 @@ redirect_from:
 
 <span class='anchor' id='about-me'></span>
 
-I am now studying in <a href='https://rsgis.whu.edu.cn/'>School of Remote Sensing and Information Engineering, Wuhan University </a>(武汉大学遥感信息工程学院) with a master's degree. I graduated from Wuhan University with a bachelor’s degree.
+I am now persuing a Master's degree in Remote Sensing at School of Remote Sensing and Information Engineering, Wuhan University. I received my Bachelor's degree in Spatial Information and Digital Technology from Wuhan University. My research interests primarily focus on robotics perception and navigation.
 
-- 🌱 I’m currently learning modern C++,Python etc.
-- 🔭 My interesting field is computer vision& SLAM. Too unfamiliar with ML/DL to have interest at the point.
-- 📫 If you have any question, feel free to contact me.my email:<u>wenbin_yang@whu.edu.cn</u>
+- 🌱 My research primarily focuses on robotics perception and navigation. including SLAM, motion planning.
+- 🔭 My current research interests include Vision-and-Language Navigation (VLN), Reinforcement Learning, and Embodied AI.
+- 📫 I am currently seeking internship opportunities in roobotics.Free free to contact me at <u>wenbin_yang@whu.edu.cn</u>
 
 
 # 🔥 News
-- *2024.11*: &nbsp;🎉 no papers are accepted by 2024. 
-- *2023.02*: &nbsp;🎉 I release my academic personal homepage. 
+- *2026.03*: &nbsp;🎉 [A paper has been submitted to ECCV.](https://hiway-page.github.io/)
+- *2025.11*: &nbsp;🎉 Our team won the Double Champion of the 16th International Micro Air Vehicle (IMAV 2025) Competition. 
 
 # 📝 Publications 
 
