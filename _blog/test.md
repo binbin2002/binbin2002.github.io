@@ -8,7 +8,7 @@ tags:
 - vln
 ---
 
-Test Post
+# Test Post
 This is a test note for my blog collection.
 
 What I am working on
