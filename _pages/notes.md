@@ -2,7 +2,7 @@
 permalink: /notes/
 title: "Notes"
 excerpt: "My notes posts"
-author_profile: true
+author_profile: false
 ---
 
 #Blog
