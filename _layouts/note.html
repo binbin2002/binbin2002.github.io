@@ -1,0 +1,57 @@
+---
+layout: compress
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    {% include head.html %}
+    {% include head/custom.html %}
+  </head>
+  <body>
+    {% include browser-upgrade.html %}
+    {% include masthead.html %}
+
+    <div id="main" role="main">
+      {% include sidebar.html %}
+
+      <div class="note-container">
+
+        <a href="/notes/" class="note-back">← 返回笔记列表</a>
+
+        <article class="note-article">
+          <header class="note-header">
+            <h1 class="note-title">{{ page.title }}</h1>
+            <div class="note-meta">
+              {% if page.date %}
+                <span class="note-date">
+                  <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                  {{ page.date | date: "%Y年%m月%d日" }}
+                </span>
+              {% endif %}
+              {% if page.tags %}
+                <span class="note-tags">
+                  {% for tag in page.tags %}
+                    <span class="blog-tag">{{ tag }}</span>
+                  {% endfor %}
+                </span>
+              {% endif %}
+            </div>
+          </header>
+
+          <div class="note-content">
+            {{ content }}
+          </div>
+
+          <footer class="note-footer">
+            <a href="/notes/" class="note-back-bottom">← 返回笔记列表</a>
+          </footer>
+        </article>
+
+      </div>
+    </div>
+
+    {% include scripts.html %}
+  </body>
+</html>
+

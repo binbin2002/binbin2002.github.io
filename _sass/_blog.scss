@@ -1,0 +1,232 @@
+/* ==========================================================================
+   Blog / Notes 列表页样式
+   ========================================================================== */
+
+.blog-container {
+  max-width: 780px;
+  margin: 2em auto;
+  padding: 0 1.5em;
+}
+
+.blog-header {
+  text-align: center;
+  padding: 2em 0 1.5em;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 2em;
+
+  .blog-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 0.3em;
+    &:before { display: none; }
+  }
+
+  .blog-subtitle {
+    color: #888;
+    font-size: 0.95em;
+    margin: 0;
+  }
+}
+
+.blog-year-group {
+  margin-bottom: 2em;
+}
+
+.blog-year-label {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #224b8d;
+  padding: 0.2em 0;
+  margin-bottom: 1em;
+  border-left: 4px solid #224b8d;
+  padding-left: 0.6em;
+}
+
+.blog-card {
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 1.2em 1.5em;
+  margin-bottom: 1em;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+    transform: translateY(-2px);
+  }
+}
+
+.blog-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  margin-bottom: 0.5em;
+  flex-wrap: wrap;
+}
+
+.blog-card-date {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.82em;
+  color: #999;
+}
+
+.blog-card-tags {
+  display: flex;
+  gap: 0.4em;
+  flex-wrap: wrap;
+}
+
+.blog-tag {
+  display: inline-block;
+  font-size: 0.72em;
+  padding: 0.15em 0.6em;
+  border-radius: 20px;
+  background: #eef2ff;
+  color: #224b8d;
+  font-weight: 500;
+}
+
+.blog-card-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0.2em 0 0.5em;
+  &:before { display: none; }
+
+  a {
+    color: #2c3e50;
+    text-decoration: none;
+    &:hover { color: #224b8d; }
+  }
+}
+
+.blog-card-excerpt {
+  font-size: 0.88em;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 0.8em;
+}
+
+.blog-card-readmore {
+  font-size: 0.82em;
+  color: #224b8d;
+  text-decoration: none;
+  font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
+.blog-empty {
+  text-align: center;
+  color: #aaa;
+  padding: 3em 0;
+}
+
+/* ==========================================================================
+   Note 单篇文章页样式
+   ========================================================================== */
+
+.note-container {
+  max-width: 780px;
+  margin: 2em auto;
+  padding: 0 1.5em;
+}
+
+.note-back {
+  display: inline-block;
+  font-size: 0.85em;
+  color: #224b8d;
+  text-decoration: none;
+  margin-bottom: 1.5em;
+  &:hover { text-decoration: underline; }
+}
+
+.note-article {
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  padding: 2em 2.5em;
+}
+
+.note-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 1em;
+  margin-bottom: 1.5em;
+}
+
+.note-title {
+  font-size: 1.7em;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 0.5em;
+  &:before { display: none; }
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  flex-wrap: wrap;
+}
+
+.note-date {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.85em;
+  color: #999;
+}
+
+.note-tags {
+  display: flex;
+  gap: 0.4em;
+  flex-wrap: wrap;
+}
+
+.note-content {
+  font-size: 0.95em;
+  line-height: 1.8;
+  color: #333;
+
+  h1, h2, h3 { color: #2c3e50; }
+  h2 { border-bottom: 1px solid #f0f0f0; padding-bottom: 0.3em; }
+
+  code {
+    background: #f5f7fa;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+
+  pre {
+    background: #f5f7fa;
+    border-radius: 6px;
+    padding: 1em;
+    overflow-x: auto;
+    code { background: none; padding: 0; }
+  }
+
+  blockquote {
+    border-left: 4px solid #224b8d;
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    color: #555;
+    background: #f8f9ff;
+    border-radius: 0 6px 6px 0;
+  }
+}
+
+.note-footer {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid #f0f0f0;
+}
+
+.note-back-bottom {
+  font-size: 0.85em;
+  color: #224b8d;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+

@@ -5,6 +5,7 @@ excerpt: "松灵机器人操作."
 tags:
 - robotics
 - navigation
+layout: note
 ---
 
 # 松灵机器人scout mini小车 自主导航

@@ -6,6 +6,7 @@ tags:
 - robotics
 - navigation
 - vln
+layout: note
 ---
 
 # Test Post
