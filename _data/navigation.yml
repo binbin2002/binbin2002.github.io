@@ -17,6 +17,11 @@ main:
 
   - title: "Internships"
     url: "/#-internships"
+    
+  - title: "Blog"
+    url: "https://www.cnblogs.com/binbin2002"
 
-  - title: "Notes"
-    url: "/notes/"
+  # - title: "Notes"
+  #   url: "/notes/"
+
+ 
