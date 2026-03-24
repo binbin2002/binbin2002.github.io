@@ -25,7 +25,7 @@ He is now persuing a Master's degree in Remote Sensing at School of Remote Sensi
 
 
 # 🔥 News
-- *2026.03*: &nbsp;🎉 [A paper has been submitted to ECCV.](https://hiway-page.github.io/)
+- *2026.03*: &nbsp;🎉 A paper has been submitted to [ECCV2026](https://hiway-page.github.io/).
 - *2025.11*: &nbsp;🎉 Our team won the Double Champion of the 16th International Micro Air Vehicle (IMAV 2025) Competition. 
 
 # 📝 Publications 
