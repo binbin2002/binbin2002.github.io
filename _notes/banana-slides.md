@@ -132,8 +132,10 @@ docker compose up -d
 2. 打开浏览器并访问网页
 ```
 https://localhost:3000
-```
 
+```
+![alt text](image.png)
+![alt text](1.jpg)
    网页设置中只需填写以下三项：
 
    | 配置项 | 说明 | 填写示例 |
