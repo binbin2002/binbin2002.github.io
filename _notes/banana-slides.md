@@ -170,6 +170,7 @@ https://localhost:3000
 
 ## 四、使用技巧
 **参考教程**:https://github.com/ShellMonster/banana-slides/blob/docs-deploy-tutorial/docs/NEWBIE_DEPLOYMENT.md
+
 **使用案例**:https://github.com/ShellMonster/banana-slides/blob/docs-deploy-tutorial/docs/TUTORIAL_SLIDES.md
 
 
@@ -362,9 +363,40 @@ banana-slides/
 
 
 #### 使用 Gemini AI Studio(白嫖300dollars)
-参考链接：https://zhuanlan.zhihu.com/p/2003224293643945667
 
-需要：
-- google账号，新用户
-- 一张Visa或者MasterCard卡 (google现在会做10刀验证，不会扣钱)
-- 一个虚拟地址
+
+>需要：
+>- google账号，新用户
+>- 一张Visa或者MasterCard卡 (google现在会做10刀验证，不会扣钱)
+>- 一个虚拟地址
+>参考链接：https://zhuanlan.zhihu.com/p/2003224293643945667
+
+---
+1. 进入[GCP Console](https://console.cloud.google.com),创建一个新项目
+2. 为你的账户添加权限，具体来说需要你的用户具有`orgpolicy.policyAdmin`权限(具体权限有好几个，我是用codex自动帮我添加的)
+
+![alt text](/images/cloud.png)
+
+
+3. 创建并下载 JSON 格式的密钥文件，
+4. 将JSON密钥改为项目根目录下的`gcp-servive-account.json`
+5. 在`.env`中设置Vertex 格式
+```
+AI_PROVIDER_FORMAT=vertex
+VERTEX_PROJECT_ID=your-gcp-project-id # 项目id
+VERTEX_LOCATION=global
+GOOGLE_APPLICATION_CREDENTIALS=./gcp-service-account.json
+```
+>注意：如果使用了Vertex，前端界面就不能再重新设置了，最好在`.env`中全部设置好，否则会覆盖`,env`？
+
+6. 如果使用 Docker 部署，还需要在 docker-compose.yml 中取消相关注释，将密钥文件挂载到容器内并设置 GOOGLE_APPLICATION_CREDENTIALS 环境变量。
+``` bash
+20 environment:
+21      - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-sa-key.json
+...
+28 - ./gcp-service-account.json:/app/gcp-sa-key.json:ro
+```
+> gemini-3-* 系列模型要求 VERTEX_LOCATION=global
+
+> 在测试中发现，代码中对于图像识别的Vertex模型格式目前并没有配置好，我本人是采用了其他来源的图像识别模型。这部分可以用AI修改代码使得完全匹配。
+
