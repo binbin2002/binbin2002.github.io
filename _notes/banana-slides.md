@@ -302,6 +302,10 @@ banana-slides/
 
 
 ## 七、关于API接口配置
+> 注意：
+1. 数据库(前端)>.env>系统默认值。 
+2. 如果之前前端保存过，会覆盖`.env`的值，只有重置后才会回到`env`,
+3. 每次修改`env`西药重新启动才能生效
 ### 1. API接口说明
 
 `Banana-slides`官方给了两种方式进行API配置：
@@ -332,7 +336,7 @@ banana-slides/
 - 文本大模型：
   - **模型:**`ark-code-latest`，会自动通过[效果+速度]双维度智能算法自动选择模型。
   - **文本模型选择商:** OpenAI
-  - **API Base URL:** https://ark.cn-beijing.volces.com/api/coding/v3
+  - **API Base URL:** 3
   - **API Key:** sk-xxxx
 
 - 图像生成模型:
