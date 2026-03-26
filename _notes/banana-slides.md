@@ -134,8 +134,8 @@ docker compose up -d
 https://localhost:3000
 
 ```
-![alt text](image.png)
-![alt text](1.jpg)
+![alt text](/images/image.png)
+
    网页设置中只需填写以下三项：
 
    | 配置项 | 说明 | 填写示例 |
@@ -298,3 +298,73 @@ banana-slides/
 ├── LICENSE                     # 许可证
 └── README.md                   # 本文件
 ```
+
+
+## 七、关于API接口配置
+### 1. API接口说明
+
+`Banana-slides`官方给了两种方式进行API配置：
+- 默认API配置，如果高级没有单独配置，则默认使用此处配置
+- 高级配置：单独配置文本、图像生成、图像识别、MinerU、百度 对应的API配置。
+
+使用官方给定的[`AiHubmix`](https://aihubmix.com/?aff=17EC)，可以一键配置好所有模型。但是测试下来小贵(一页平均1块多了)，为了降本增效，我对国产的模型进行了一些测试。
+
+### 2.国产相关API说明
+我使用的是[**火山方舟 coding plan Lite （40元/每月）**](https://www.volcengine.com/activity/ark?utm_source=5&utm_medium=sem_baidu&utm_term=sem_baidu_tehui_fangzhou&utm_campaign=vgbdpcztn808255671594&utm_content=baidu_tehui_fangzhou&ad_platform_id=baidusearch_lead&account_id=53044728&a_planid=530058287&a_unitid=9841069586&a_keywordid=808255671594&a_creative=94090925231&a_matchtype=2&a_dongtai=0&a_trig_flag=nm&a_crowdid=0&a_kw_enc_utf8=%E6%96%B9%E8%88%9F%E7%81%AB%E5%B1%B1&ug_semver=v2.0.0&bd_vid=7050722873576691914)。(同样的有阿里云的百炼、腾讯云的coding Plan，关键是这几个都要靠抢，买不到)。
+
+
+>火山方舟是豆包新出的Coding Plan，支持最新的Doubao-Seed-2.0-pro/lite/Code 、MiniMax-M2.5、GLM-4.7、Deepseek-V3.2等模型自由切换，或使用Auto模式调用。支持Claude COde、Curson等主流编程工具。
+
+
+### 3. Banana-slides API设置
+
+#### 使用火山引擎的Coding Plan
+<p>Base URL</p>
+
+不同的工具配置的 Base URL 根据兼容的协议会有不同：
+-  兼容 Anthropic 接口协议工具：https://ark.cn-beijing.volces.com/api/coding
+-  兼容 OpenAI 接口协议工具：https://ark.cn-beijing.volces.com/api/coding/v3
+> ! 注意
+>  请勿使用 https://ark.cn-beijing.volces.com/api/v3 ：该 Base URL 不会消耗您的 Coding Plan 额度，而是会产生额外费用。
+<p>模型选择</p>
+
+- 文本大模型：
+  - **模型:**`ark-code-latest`，会自动通过[效果+速度]双维度智能算法自动选择模型。
+  - **文本模型选择商:** OpenAI
+  - **API Base URL:** https://ark.cn-beijing.volces.com/api/coding/v3
+  - **API Key:** sk-xxxx
+
+- 图像生成模型:
+  - 选择A
+
+- 图像识别模型：
+  - **模型:**`ark-code-latest`，会自动通过[效果+速度]双维度智能算法自动选择模型。
+  - **文本模型选择商:** OpenAI
+  - **API Base URL:** https://ark.cn-beijing.volces.com/api/coding/v3
+  - **API Key:** sk-xxxx
+
+- MinerU 配置：
+  - MinerU API Base: https://mineru.net/
+  - MinerU Token : 登录网站给定的xxx
+
+- 百度设置
+  - 百度 API Key,[在此处申请](https://console.bce.baidu.com/iam/#/iam/apikey/list)
+
+
+#### 使用优云智算 coding Plan
+
+操作同火山引擎类似，不同点在于**API Base URL**不同，以及可以使用的模型不同
+
+<p>Base URL</p>
+- OpenAI 协议兼容调用参考： OpenAI Response API，Bsea URL：https://api.modelverse.cn/v1
+- Anthropic 协议兼容调用参考： Claude兼容说明，Bsea URL：https://api.modelverse.cn/v1/messages
+- Gemini协议兼容调用参考：Gemini快速开始，Base URL：https://api.modelverse.cn
+
+
+#### 使用 Gemini AI Studio(白嫖300dollars)
+参考链接：https://zhuanlan.zhihu.com/p/2003224293643945667
+
+需要：
+- google账号，新用户
+- 一张Visa或者MasterCard卡 (google现在会做10刀验证，不会扣钱)
+- 一个虚拟地址
