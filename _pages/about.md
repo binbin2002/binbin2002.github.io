@@ -25,21 +25,21 @@ He is now persuing a Master's degree in Remote Sensing at School of Remote Sensi
 
 
 # 🔥 News
-- *2026.03*: &nbsp;🎉 A paper has been submitted to [ECCV2026](https://hiway-page.github.io/).
+- *2026.03*: &nbsp;🎉 [A paper has been submitted to ECCV.](https://hiway-page.github.io/)
 - *2025.11*: &nbsp;🎉 Our team won the Double Champion of the 16th International Micro Air Vehicle (IMAV 2025) Competition. 
 
 # 📝 Publications 
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">CVPR 2016</div><img src='images/image.png' alt="sym" width="100%"></div></div>
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">TIM 2026</div><img src='images/image.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
 [EasyCalib: A Novel Target for High-Accuracy Fully-Automatic Extrinsic Calibration of Camera and LiDAR](https://ieeexplore.ieee.org/document/11495237)
 
 ZhiyuZhou,Zhi Gao,Min Cao, Jingshi Wang,
-Yong Li,Zhipeng Lin,Wenbin Yang,XiaonanWang,QiyuanZhang
+Yong Li,Zhipeng Lin,**Wenbin Yang**,Xiaonan Wang,Qiyuan Zhang
 
-[**Project**](https://scholar.google.com/citations?view_op=view_citation&hl=zh-CN&user=DhtAFkwAAAAJ&citation_for_view=DhtAFkwAAAAJ:ALROH1vI_8AC) <strong><span class='show_paper_citations' data='DhtAFkwAAAAJ:ALROH1vI_8AC'></span></strong>
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare aliquet ipsum, ac tempus justo dapibus sit amet. 
+[**Project**]() <strong><span class='show_paper_citations' data='DhtAFkwAAAAJ:ALROH1vI_8AC'></span></strong>
+- Precise extrinsic calibration is a fundamental requirement for enabling robust camera–LiDAR fusion applications. Existing target-based methods suffer from practical limitations: they require manual annotation, precise target dimensions and initial extrinsic estimates, demand complex target placement, and have limited applicability across different sensor types. To the best of our knowledge, we are not aware of a prior approach that simultaneously achieves full automation, avoids reliance on precise target dimensions and accurate initialization, and generalizes across both mechanical and non-repetitive-scan solid-state LiDARs. In this paper, we propose EasyCalib, a novel artificial target for high-accuracy fully-automatic extrinsic calibration for almost all types of camera-LiDAR systems. Specifically, we design dedicated point cloud segmenters for mechanical and solid-state LiDARs to automatically extract EasyCalib. By leveraging the co-visible corner points and central edge features of EasyCalib in both the image and point cloud domains, we achieve a coarse-to-fine, initialization-free, and highly accurate extrinsic calibration. Moreover, since the proposed calibration pipeline does not require the target to be strictly orthogonal and tolerates moderate assembly misalignment, and since the target dimensions are not involved in the calibration computation, EasyCalib requires neither complex manufacturing procedures nor precise prior knowledge of its size.
 </div>
 </div>
 
