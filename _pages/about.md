@@ -38,8 +38,8 @@ He is now persuing a Master's degree in Remote Sensing at School of Remote Sensi
 Zhiyu Zhou,Zhi Gao,Min Cao, Jingshi Wang,
 Yong Li,Zhipeng Lin, **Wenbin Yang** ,Xiaonan Wang,Qiyuan Zhang
 
-[**Project**]()
-- EasyCalib is a fully automatic camera–LiDAR extrinsic calibration method based on a novel artificial target, requiring no manual annotation, precise target dimensions, or accurate initial extrinsic estimates. By extracting shared corner and central edge features from images and point clouds, it achieves high-accuracy calibration across both mechanical and solid-state LiDAR systems while tolerating moderate target assembly errors.
+<!-- [**Project**]()
+- EasyCalib is a fully automatic camera–LiDAR extrinsic calibration method based on a novel artificial target, requiring no manual annotation, precise target dimensions, or accurate initial extrinsic estimates. By extracting shared corner and central edge features from images and point clouds, it achieves high-accuracy calibration across both mechanical and solid-state LiDAR systems while tolerating moderate target assembly errors. -->
 </div>
 </div>
 
@@ -52,8 +52,8 @@ Regions Using Dynamic Sparse Graphs]()
 
 **Wenbin Yang**, Jingzhong Xu, Zhi Gao, Zhiyu Zhou, Feng Lin
 
-[**Project**]()
-- HSURE is a hierarchical safety-aware autonomous exploration framework for UGVs that improves exploration efficiency by explicitly leveraging unknown regions through topological decomposition and observability-driven safety assessment. Its coarse-to-fine planner generates efficient coverage paths and safe executable trajectories, reducing exploration time and trajectory redundancy while maintaining navigation safety.
+<!-- [**Project**]()
+- HSURE is a hierarchical safety-aware autonomous exploration framework for UGVs that improves exploration efficiency by explicitly leveraging unknown regions through topological decomposition and observability-driven safety assessment. Its coarse-to-fine planner generates efficient coverage paths and safe executable trajectories, reducing exploration time and trajectory redundancy while maintaining navigation safety. -->
 </div>
 </div>
 
