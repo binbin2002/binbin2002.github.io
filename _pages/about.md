@@ -30,7 +30,7 @@ He is now persuing a Master's degree in Remote Sensing at School of Remote Sensi
 
 # 📝 Publications 
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">TIM 2026</div><img src='images/image.png' alt="sym" width="100%"></div></div>
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">TIM 2026</div><img src='images/EasyCalib.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
 [EasyCalib: A Novel Target for High-Accuracy Fully-Automatic Extrinsic Calibration of Camera and LiDAR](https://ieeexplore.ieee.org/document/11495237)
@@ -44,6 +44,18 @@ Yong Li,Zhipeng Lin, **Wenbin Yang** ,Xiaonan Wang,Qiyuan Zhang
 </div>
 
 
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">ICCA 2026</div><img src='images/HSURE.png' alt="sym" width="100%"></div></div>
+<div class='paper-box-text' markdown="1">
+
+[HSURE: Hierarchical Safety-Aware Exploration Guided by Unknown
+Regions Using Dynamic Sparse Graphs]()
+
+**Wenbin Yang**, Jingzhong Xu, Zhi Gao, Zhiyu Zhou, Feng Lin
+
+[**Project**]()
+- HSURE is a hierarchical safety-aware autonomous exploration framework for UGVs that improves exploration efficiency by explicitly leveraging unknown regions through topological decomposition and observability-driven safety assessment. Its coarse-to-fine planner generates efficient coverage paths and safe executable trajectories, reducing exploration time and trajectory redundancy while maintaining navigation safety.
+</div>
+</div>
 
 # 🎖 Honors and Awards
 - *2024.06* Outstanding Graduate and Excellent Graduation Project, School of Remote Sensing and Information Engineering, Wuhan University. 
