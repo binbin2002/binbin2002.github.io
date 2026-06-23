@@ -77,7 +77,7 @@ Regions Using Dynamic Sparse Graphs]()
 
   <div class="talk-list">
     <a class="talk-item" href="/images/ICCA.jpg">
-      <img src="/images/ICCA.jpg" alt="ICCA 2026 oral presentation">
-      <span><strong>ICCA 2026 oral presentation</strong><br>20th IEEE International Conference on Control and Automation. ICCA 2026</span>
-    </a>
+      <!-- <img src="/images/ICCA.jpg" alt="ICCA 2026 oral presentation"> -->
+      <span><strong>ICCA 2026 oral presentation</strong></span>
+    </a> <br>20th IEEE International Conference on Control and Automation. ICCA 2026.
   </div>
