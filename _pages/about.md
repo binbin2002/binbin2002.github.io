@@ -26,8 +26,8 @@ He is now persuing a Master's degree in Remote Sensing at School of Remote Sensi
 
 # 🔥 News
 - *2026.06*: &nbsp;🎉 [Our work in VLN has been accepted to ECCV 2026.](https://hiway-page.github.io/)
-- *2026.06*: &nbsp;🎉 [Oral presentation in ICCA 2026 in Almaty, Kazakhstan.]
-- *2026.03*: &nbsp;🎉 [Our work has submitted to ECCV 2026]
+- *2026.06*: &nbsp;🎉 Oral presentation in ICCA 2026 in Almaty, Kazakhstan.
+- *2026.03*: &nbsp;🎉 Our work has submitted to ECCV 2026.
 - *2025.11*: &nbsp;🎉 Our team won the Double Champion of the 16th International Micro Air Vehicle (IMAV 2025) Competition. 
 
 # 📝 Publications 
@@ -69,25 +69,15 @@ Regions Using Dynamic Sparse Graphs]()
 
 
 # 💻 Internships
-- *2026.05 - now *,  Algorithm Engineering Intern at a renowned embodied AI company in Shanghai(上海著名具身智能公司)
+- *2026.05 - now*,  Algorithm Engineering Intern at a renowned embodied AI company in Shanghai(上海著名具身智能公司)
 - *2025.08 - 2025.10*, Robotics Navigation Algorithm Intern, Fengke (Wuhan) Technology Co., Ltd., Wuhan, China. [github](https://github.com/binbin2002/Unitree_G1_Navigation)
 
 
-# 💬 Talks
-<div class='paper-box'>
-  <div class='paper-box-image'>
-    <img src='images/ICCA2026.jpg'
-         alt='ICCA 2026 Oral Presentation'
-         width="100%">
+# Talks
+
+  <div class="talk-list">
+    <a class="talk-item" href="/images/ICCA.jpg">
+      <img src="/images/ICCA.jpg" alt="ICCA 2026 oral presentation">
+      <span><strong>ICCA 2026 oral presentation</strong><br>20th IEEE International Conference on Control and Automation. ICCA 2026</span>
+    </a>
   </div>
-
-  <div class='paper-box-text' markdown="1">
-
-[**ICCA 2026 Oral Presentation**](#)
-
-*HSURE: Hierarchical Safety-Aware Exploration Guided by Unknown Regions Using Dynamic Sparse Graphs*  
-2026 IEEE 20th International Conference on Control & Automation (ICCA),  
-Almaty, Kazakhstan, 2026.
-
-  </div>
-</div>
