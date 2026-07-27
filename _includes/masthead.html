@@ -4,10 +4,28 @@
       <nav id="site-nav" class="greedy-nav">
         <button><div class="navicon"></div></button>
         <ul class="visible-links">
-          <li class="masthead__menu-item masthead__menu-item--lg masthead__menu-home-item"><a href="#about-me">Homepage</a></li>
-          {% for link in site.data.navigation.main %}
-            <li class="masthead__menu-item"><a href="{{ domain }}{{ link.url }}">{{ link.title }}</a></li>
+          {% if page.lang == "zh-CN" %}
+            {% assign navigation_links = site.data.navigation.main_zh %}
+            {% assign homepage_url = "/zh/#about-me" %}
+            {% assign homepage_title = "中文主页" %}
+          {% else %}
+            {% assign navigation_links = site.data.navigation.main %}
+            {% assign homepage_url = "/#about-me" %}
+            {% assign homepage_title = "Homepage" %}
+          {% endif %}
+          <li class="masthead__menu-item masthead__menu-item--lg masthead__menu-home-item"><a href="{{ homepage_url }}" target="_self">{{ homepage_title }}</a></li>
+          {% for link in navigation_links %}
+            {% if link.url contains "://" %}
+              <li class="masthead__menu-item"><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {% else %}
+              <li class="masthead__menu-item"><a href="{{ domain }}{{ link.url }}" target="_self">{{ link.title }}</a></li>
+            {% endif %}
           {% endfor %}
+          {% if page.lang == "zh-CN" %}
+            <li class="masthead__menu-item"><a href="/" target="_self" lang="en">English</a></li>
+          {% else %}
+            <li class="masthead__menu-item"><a href="/zh/" target="_self" lang="zh-CN">中文</a></li>
+          {% endif %}
         </ul>
         <ul class="hidden-links hidden"></ul>
       </nav>
