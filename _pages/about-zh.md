@@ -41,7 +41,7 @@ Zhiyu Zhou*, Bin Guan*, **Wenbin Yang∗**, Zhi Gao†, and Hao Fang
 <div class='paper-box'><div class='paper-box-image'><div><div class="badge">ICCA 2026</div><img src='/images/HSURE.png' alt="HSURE" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
-[HSURE: Hierarchical Safety-Aware Exploration Guided by Unknown Regions Using Dynamic Sparse Graphs]()
+[HSURE: Hierarchical Safety-Aware Exploration Guided by Unknown Regions Using Dynamic Sparse Graphs](https://ieeexplore.ieee.org/abstract/document/11618066)
 
 **Wenbin Yang**, Jingzhong Xu, Zhi Gao, Zhiyu Zhou, Feng Lin
 
