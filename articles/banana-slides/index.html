@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Banana-slides：AI PPT 工具上手记录 · Wenbin's Research Notes</title><meta name="description" content="从创作流程到本地部署，记录 Banana-slides 的使用方式、项目结构与接口配置。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">AI TOOLS / 学习笔记</p><h1>Banana-slides：AI PPT 工具上手记录</h1><p class="intro">从创作流程到本地部署，记录 Banana-slides 的使用方式、项目结构与接口配置。</p><div class="article-meta">原笔记日期 2026-03-25 · Wenbin Yang · 约 12 分钟阅读</div><div class="tags"><span class="tag">AI PPT</span><span class="tag">Docker</span><span class="tag">工具实践</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">收录自本站已有笔记，保留当时的内容记录。软件版本、服务价格与接口信息以原笔记日期为背景。</div><h2 id="section-1">一、关于Banana-slides</h2>
+<h3 id="section-2">1.基本介绍</h3>
+<p>Banana-slides是一个基于原生AI PPT生成应用，能够在几分钟内从想法到演示文稿，
+无需繁琐排版，可以通过口头描述修改，实现真正的Vibe PPT。
+具备文本图片自动提取，素材上传和自然语言修改功能。</p>
+<h3 id="section-3">2.资源链接</h3>
+<ul>
+<li>项目链接:https://github.com/Anionex/banana-slides</li>
+<li>使用案例：https://github.com/Anionex/banana-slides/issues/2</li>
+<li>从0开始部署:https://github.com/ShellMonster/banana-slides/blob/docs-deploy-tutorial/docs/NEWBIE_DEPLOYMENT.md</li>
+</ul>
+<h2 id="section-4">二、 Banana功能介绍</h2>
+<h3 id="section-5">1. 灵活多样的创作路径</h3>
+<p>支持<strong>想法</strong>、<strong>大纲</strong>、<strong>页面描述</strong>三种起步方式，满足不同创作习惯。</p>
+<ul>
+<li><strong>一句话生成</strong>：输入一个主题，AI 自动生成结构清晰的大纲和逐页内容描述。</li>
+<li><strong>自然语言编辑</strong>：支持以 Vibe 形式口头修改大纲或描述（如&quot;把第三页改成案例分析&quot;），AI 实时响应调整。</li>
+<li><strong>大纲/描述模式</strong>：既可一键批量生成，也可手动调整细节。</li>
+</ul>
+<h3 id="section-6">2. 强大的素材解析能力</h3>
+<ul>
+<li><strong>多格式支持</strong>：上传 PDF/Docx/MD/Txt 等文件，后台自动解析内容。</li>
+<li><strong>智能提取</strong>：自动识别文本中的关键点、图片链接和图表信息，为生成提供丰富素材。</li>
+<li><strong>风格参考</strong>：支持上传参考图片或模板，定制 PPT 风格。</li>
+</ul>
+<h3 id="section-7">3. &quot;Vibe&quot; 式自然语言修改</h3>
+<p>不再受限于复杂的菜单按钮，直接通过<strong>自然语言</strong>下达修改指令。</p>
+<ul>
+<li><strong>局部重绘</strong>：对不满意的区域进行口头式修改（如&quot;把这个图换成饼图&quot;）。</li>
+<li><strong>整页优化</strong>：基于 nano banana pro🍌 生成高清、风格统一的页面。</li>
+</ul>
+<h3 id="section-8">4. 开箱即用的格式导出</h3>
+<ul>
+<li><strong>多格式支持</strong>：一键导出标准 <strong>PPTX</strong> 或 <strong>PDF</strong> 文件。</li>
+<li><strong>完美适配</strong>：默认 16:9 比例，排版无需二次调整，直接演示。</li>
+</ul>
+<h3 id="section-9">5. 可自由编辑的pptx导出（Beta迭代中）</h3>
+<ul>
+<li><strong>导出图像为高还原度、背景干净的、可自由编辑图像和文字的PPT页面</strong></li>
+<li>相关更新见 https://github.com/Anionex/banana-slides/issues/121</li>
+</ul>
+<br>
+<blockquote>
+<p>注：随着新功能添加,对比可能过时</p>
+</blockquote>
+<h2 id="section-10">三、Banana Docker本地部署</h2>
+<p>Banana slides 最简单的部署方式是使用Docker Compose 🐳，快速启动前后端服务。</p>
+<h3 id="section-11">1. 系统要求</h3>
+
+<details>
+  <summary>📒 Windows/Mac用户说明</summary>
+<p>如果你使用 <strong>Windows 或 macOS</strong>，请先安装 <strong>Docker Desktop</strong>，并确保 Docker 正在运行（Windows 可检查系统托盘图标；macOS 可检查菜单栏图标），然后按文档中的相同步骤操作。</p>
+<blockquote>
+<p><strong>提示</strong>：如果遇到问题，Windows 用户请在 Docker Desktop 设置中启用 <strong>WSL 2 后端</strong>（推荐）；同时确保端口 <strong>3000</strong> 和 <strong>5000</strong> 未被占用。</p>
+</blockquote>
+</details>
+<details>
+    <summary>Linux 用户说明</summary>
+<p>使用 <strong>Linux</strong>，只需要先安装docker即可。要求和Windows类似</p>
+</details>
+<h3 id="section-12">2.代码获取</h3>
+<ol>
+<li>代码复制</li>
+</ol>
+<pre><code class="language-bash">git clone https://github.com/Anionex/banana-slides
+cd banana-slides
+</code></pre>
+<ol start="2">
+<li>拉取并部署镜像</li>
+</ol>
+<pre><code class="language-bash"># 在项目目录下运行镜像
+docker compose up -d
+</code></pre>
+<p>3.前端和后端访问链接:</p>
+<pre><code class="language-bash">https://localhost:3000 #前端
+https://localhost:5000 #后端
+
+</code></pre>
+<h3 id="section-13">3. API获取和配置</h3>
+<p>Banana-slides 支持 <code>gemini</code> 和 <code>Open AI</code>标准格式的API密钥。支持的API格式</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>API 格式</th>
+<th>适用平台</th>
+<th>图片生成</th>
+<th>分辨率设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Gemini 格式</strong></td>
+<td>Google Gemini、AIHubMix、本地 Ollama 等</td>
+<td>✅ 支持</td>
+<td>✅ <strong>可选 1K/2K/4K</strong></td>
+</tr>
+<tr>
+<td><strong>OpenAI 格式</strong></td>
+<td>OpenAI、其他兼容平台、本地 vLLM 等</td>
+<td>⚠️ 取决于平台</td>
+<td>❌ 固定分辨率</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>其他兼容平台和中转可以参考</p>
+</blockquote>
+<h3 id="section-14">4. 网页运行</h3>
+<ol>
+<li>启动docker 服务</li>
+</ol>
+<pre><code class="language-bash">docker compose up -d 
+</code></pre>
+<hr />
+<p><strong>启动成功预计输出</strong></p>
+<pre><code>[+] Running 3/3
+ ✔ Network banana-slides-network       Created
+ ✔ Container banana-slides-backend      Started
+ ✔ Container banana-slides-frontend     Started
+</code></pre>
+<hr />
+<ol start="2">
+<li>打开浏览器并访问网页</li>
+</ol>
+<pre><code>https://localhost:3000
+
+</code></pre>
+<p><p class="archive-note">原笔记此处的配图暂缺。</p></p>
+<p>网页设置中只需填写以下三项：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>说明</th>
+<th>填写示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API 格式</strong></td>
+<td>选择 <code>Gemini 格式</code> 或 <code>OpenAI 格式</code></td>
+<td><code>Gemini 格式</code>（推荐）</td>
+</tr>
+<tr>
+<td><strong>API Base</strong></td>
+<td>API 服务地址（参考下方填写规则）</td>
+<td><code>https://aihubmix.com/gemini</code></td>
+</tr>
+<tr>
+<td><strong>API Key</strong></td>
+<td>你获取的 API 密钥</td>
+<td><code>AIzaSy...</code></td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>💡 <strong>兼容性说明</strong>：只要是兼容标准 <strong>OpenAI v1</strong> 或 <strong>Gemini v1beta</strong> 格式的 API 服务都可以使用：</p>
+<ul>
+<li><strong>云端服务</strong>：AIHubMix、Google Gemini、OpenAI 等</li>
+<li><strong>本地服务</strong>：Ollama、vLLM、LocalAI 等本地部署的模型服务</li>
+</ul>
+</blockquote>
+<p><strong>API Base 填写规则</strong>：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>使用场景</th>
+<th>API 格式</th>
+<th>API Base 填写示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AIHubMix（推荐）</strong></td>
+<td>Gemini 格式</td>
+<td><code>https://aihubmix.com/gemini</code> ✅ <strong>需要</strong>包含 <code>/gemini</code> 路径</td>
+</tr>
+<tr>
+<td><strong>Google 官方</strong></td>
+<td>Gemini 格式</td>
+<td><code>https://generativelanguage.googleapis.com</code> ⚠️ 不要加 <code>/v1beta</code></td>
+</tr>
+<tr>
+<td><strong>本地 Ollama</strong></td>
+<td>Gemini 格式</td>
+<td><code>http://localhost:11434</code> ⚠️ 不要加 <code>/v1beta</code></td>
+</tr>
+<tr>
+<td><strong>AIHubMix</strong></td>
+<td>OpenAI 格式</td>
+<td><code>https://aihubmix.com/v1</code> ✅ 需要加 <code>/v1</code></td>
+</tr>
+<tr>
+<td><strong>OpenAI 官方</strong></td>
+<td>OpenAI 格式</td>
+<td><code>https://api.openai.com/v1</code> ✅ 需要加 <code>/v1</code></td>
+</tr>
+<tr>
+<td><strong>本地 vLLM</strong></td>
+<td>OpenAI 格式</td>
+<td><code>http://localhost:8000/v1</code> ✅ 需要加 <code>/v1</code></td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>⚠️ <strong>重要提示</strong>：</p>
+<ul>
+<li><strong>AIHubMix Gemini 格式</strong>的 API Base 需要填写完整路径 <code>https://aihubmix.com/gemini</code></li>
+<li><strong>Google 官方 Gemini 格式</strong>只需填写域名，<strong>不要</strong>在后面添加 <code>/v1beta</code>，系统会自动拼接</li>
+<li><strong>OpenAI 格式</strong>的 API Base 需要填写完整路径，例如 <code>https://api.openai.com/v1</code></li>
+<li><strong>本地服务</strong>确保已启动，地址格式为 <code>http://localhost:端口号</code></li>
+</ul>
+</blockquote>
+<h2 id="section-15">四、使用技巧</h2>
+<p><strong>参考教程</strong>:https://github.com/ShellMonster/banana-slides/blob/docs-deploy-tutorial/docs/NEWBIE_DEPLOYMENT.md</p>
+<p><strong>使用案例</strong>:https://github.com/ShellMonster/banana-slides/blob/docs-deploy-tutorial/docs/TUTORIAL_SLIDES.md</p>
+<h2 id="section-16">五、 技术架构</h2>
+<h3 id="section-17">前端技术栈</h3>
+<ul>
+<li><strong>框架</strong>：React 18 + TypeScript</li>
+<li><strong>构建工具</strong>：Vite 5</li>
+<li><strong>状态管理</strong>：Zustand</li>
+<li><strong>路由</strong>：React Router v6</li>
+<li><strong>UI组件</strong>：Tailwind CSS</li>
+<li><strong>拖拽功能</strong>：@dnd-kit</li>
+<li><strong>图标</strong>：Lucide React</li>
+<li><strong>HTTP客户端</strong>：Axios</li>
+</ul>
+<h3 id="section-18">后端技术栈</h3>
+<ul>
+<li><strong>语言</strong>：Python 3.10+</li>
+<li><strong>框架</strong>：Flask 3.0</li>
+<li><strong>包管理</strong>：uv</li>
+<li><strong>数据库</strong>：SQLite + Flask-SQLAlchemy</li>
+<li><strong>AI能力</strong>：Google Gemini API</li>
+<li><strong>PPT处理</strong>：python-pptx</li>
+<li><strong>图片处理</strong>：Pillow</li>
+<li><strong>并发处理</strong>：ThreadPoolExecutor</li>
+<li><strong>跨域支持</strong>：Flask-CORS</li>
+</ul>
+<h2 id="section-19">六、项目结构</h2>
+<pre><code>banana-slides/
+├── frontend/                    # React前端应用
+│   ├── src/
+│   │   ├── pages/              # 页面组件
+│   │   │   ├── Home.tsx        # 首页（创建项目）
+│   │   │   ├── OutlineEditor.tsx    # 大纲编辑页
+│   │   │   ├── DetailEditor.tsx     # 详细描述编辑页
+│   │   │   ├── SlidePreview.tsx     # 幻灯片预览页
+│   │   │   └── History.tsx          # 历史版本管理页
+│   │   ├── components/         # UI组件
+│   │   │   ├── outline/        # 大纲相关组件
+│   │   │   │   └── OutlineCard.tsx
+│   │   │   ├── preview/        # 预览相关组件
+│   │   │   │   ├── SlideCard.tsx
+│   │   │   │   └── DescriptionCard.tsx
+│   │   │   ├── shared/         # 共享组件
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Card.tsx
+│   │   │   │   ├── Input.tsx
+│   │   │   │   ├── Textarea.tsx
+│   │   │   │   ├── Modal.tsx
+│   │   │   │   ├── Loading.tsx
+│   │   │   │   ├── Toast.tsx
+│   │   │   │   ├── Markdown.tsx
+│   │   │   │   ├── MaterialSelector.tsx
+│   │   │   │   ├── MaterialGeneratorModal.tsx
+│   │   │   │   ├── TemplateSelector.tsx
+│   │   │   │   ├── ReferenceFileSelector.tsx
+│   │   │   │   └── ...
+│   │   │   ├── layout/         # 布局组件
+│   │   │   └── history/        # 历史版本组件
+│   │   ├── store/              # Zustand状态管理
+│   │   │   └── useProjectStore.ts
+│   │   ├── api/                # API接口
+│   │   │   ├── client.ts       # Axios客户端配置
+│   │   │   └── endpoints.ts    # API端点定义
+│   │   ├── types/              # TypeScript类型定义
+│   │   ├── utils/              # 工具函数
+│   │   ├── constants/          # 常量定义
+│   │   └── styles/             # 样式文件
+│   ├── public/                 # 静态资源
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── tailwind.config.js      # Tailwind CSS配置
+│   ├── Dockerfile
+│   └── nginx.conf              # Nginx配置
+│
+├── backend/                    # Flask后端应用
+│   ├── app.py                  # Flask应用入口
+│   ├── config.py               # 配置文件
+│   ├── models/                 # 数据库模型
+│   │   ├── project.py          # Project模型
+│   │   ├── page.py             # Page模型（幻灯片页）
+│   │   ├── task.py             # Task模型（异步任务）
+│   │   ├── material.py         # Material模型（参考素材）
+│   │   ├── user_template.py    # UserTemplate模型（用户模板）
+│   │   ├── reference_file.py   # ReferenceFile模型（参考文件）
+│   │   ├── page_image_version.py # PageImageVersion模型（页面版本）
+│   ├── services/               # 服务层
+│   │   ├── ai_service.py       # AI生成服务（Gemini集成）
+│   │   ├── file_service.py     # 文件管理服务
+│   │   ├── file_parser_service.py # 文件解析服务
+│   │   ├── export_service.py   # PPTX/PDF导出服务
+│   │   ├── task_manager.py     # 异步任务管理
+│   │   ├── prompts.py          # AI提示词模板
+│   ├── controllers/            # API控制器
+│   │   ├── project_controller.py      # 项目管理
+│   │   ├── page_controller.py         # 页面管理
+│   │   ├── material_controller.py     # 素材管理
+│   │   ├── template_controller.py     # 模板管理
+│   │   ├── reference_file_controller.py # 参考文件管理
+│   │   ├── export_controller.py       # 导出功能
+│   │   └── file_controller.py         # 文件上传
+│   ├── utils/                  # 工具函数
+│   │   ├── response.py         # 统一响应格式
+│   │   ├── validators.py       # 数据验证
+│   │   └── path_utils.py       # 路径处理
+│   ├── instance/               # SQLite数据库（自动生成）
+│   ├── exports/                # 导出文件目录
+│   ├── Dockerfile
+│   └── README.md
+│
+├── tests/                      # 测试文件目录
+├── v0_demo/                    # 早期演示版本
+├── output/                     # 输出文件目录
+│
+├── pyproject.toml              # Python项目配置（uv管理）
+├── uv.lock                     # uv依赖锁定文件
+├── docker-compose.yml          # Docker Compose配置
+├── .env.example                 # 环境变量示例
+├── LICENSE                     # 许可证
+└── README.md                   # 本文件
+</code></pre>
+<h2 id="section-20">七、关于API接口配置</h2>
+<blockquote>
+<p>注意：</p>
+</blockquote>
+<ol>
+<li>数据库(前端)&gt;.env&gt;系统默认值。</li>
+<li>如果之前前端保存过，会覆盖<code>.env</code>的值，只有重置后才会回到<code>env</code>,</li>
+<li>每次修改<code>env</code>西药重新启动才能生效</li>
+</ol>
+<h3 id="section-21">1. API接口说明</h3>
+<p><code>Banana-slides</code>官方给了两种方式进行API配置：</p>
+<ul>
+<li>默认API配置，如果高级没有单独配置，则默认使用此处配置</li>
+<li>高级配置：单独配置文本、图像生成、图像识别、MinerU、百度 对应的API配置。</li>
+</ul>
+<p>使用官方给定的<a href="https://aihubmix.com/?aff=17EC"><code>AiHubmix</code></a>，可以一键配置好所有模型。但是测试下来小贵(一页平均1块多了)，为了降本增效，我对国产的模型进行了一些测试。</p>
+<h3 id="section-22">2.国产相关API说明</h3>
+<p>我使用的是<a href="https://www.volcengine.com/activity/ark?utm_source=5&amp;utm_medium=sem_baidu&amp;utm_term=sem_baidu_tehui_fangzhou&amp;utm_campaign=vgbdpcztn808255671594&amp;utm_content=baidu_tehui_fangzhou&amp;ad_platform_id=baidusearch_lead&amp;account_id=53044728&amp;a_planid=530058287&amp;a_unitid=9841069586&amp;a_keywordid=808255671594&amp;a_creative=94090925231&amp;a_matchtype=2&amp;a_dongtai=0&amp;a_trig_flag=nm&amp;a_crowdid=0&amp;a_kw_enc_utf8=%E6%96%B9%E8%88%9F%E7%81%AB%E5%B1%B1&amp;ug_semver=v2.0.0&amp;bd_vid=7050722873576691914"><strong>火山方舟 coding plan Lite （40元/每月）</strong></a>。(同样的有阿里云的百炼、腾讯云的coding Plan，关键是这几个都要靠抢，买不到)。</p>
+<blockquote>
+<p>火山方舟是豆包新出的Coding Plan，支持最新的Doubao-Seed-2.0-pro/lite/Code 、MiniMax-M2.5、GLM-4.7、Deepseek-V3.2等模型自由切换，或使用Auto模式调用。支持Claude COde、Curson等主流编程工具。</p>
+</blockquote>
+<h3 id="section-23">3. Banana-slides API设置</h3>
+<h4 id="section-24">使用火山引擎的Coding Plan</h4>
+<p>Base URL</p>
+<p>不同的工具配置的 Base URL 根据兼容的协议会有不同：</p>
+<ul>
+<li>兼容 Anthropic 接口协议工具：https://ark.cn-beijing.volces.com/api/coding</li>
+<li>兼容 OpenAI 接口协议工具：https://ark.cn-beijing.volces.com/api/coding/v3</li>
+</ul>
+<blockquote>
+<p>! 注意
+请勿使用 https://ark.cn-beijing.volces.com/api/v3 ：该 Base URL 不会消耗您的 Coding Plan 额度，而是会产生额外费用。</p>
+</blockquote>
+<p>模型选择</p>
+<ul>
+<li>
+<p>文本大模型：</p>
+<ul>
+<li><strong>模型:</strong><code>ark-code-latest</code>，会自动通过[效果+速度]双维度智能算法自动选择模型。</li>
+<li><strong>文本模型选择商:</strong> OpenAI</li>
+<li><strong>API Base URL:</strong> 3</li>
+<li><strong>API Key:</strong> sk-xxxx</li>
+</ul>
+</li>
+<li>
+<p>图像生成模型:</p>
+<ul>
+<li>选择A</li>
+</ul>
+</li>
+<li>
+<p>图像识别模型：</p>
+<ul>
+<li><strong>模型:</strong><code>ark-code-latest</code>，会自动通过[效果+速度]双维度智能算法自动选择模型。</li>
+<li><strong>文本模型选择商:</strong> OpenAI</li>
+<li><strong>API Base URL:</strong> https://ark.cn-beijing.volces.com/api/coding/v3</li>
+<li><strong>API Key:</strong> sk-xxxx</li>
+</ul>
+</li>
+<li>
+<p>MinerU 配置：</p>
+<ul>
+<li>MinerU API Base: https://mineru.net/</li>
+<li>MinerU Token : 登录网站给定的xxx</li>
+</ul>
+</li>
+<li>
+<p>百度设置</p>
+<ul>
+<li>百度 API Key,<a href="https://console.bce.baidu.com/iam/#/iam/apikey/list">在此处申请</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="section-25">使用优云智算 coding Plan</h4>
+<p>操作同火山引擎类似，不同点在于<strong>API Base URL</strong>不同，以及可以使用的模型不同</p>
+<p>Base URL</p>
+- OpenAI 协议兼容调用参考： OpenAI Response API，Bsea URL：https://api.modelverse.cn/v1
+- Anthropic 协议兼容调用参考： Claude兼容说明，Bsea URL：https://api.modelverse.cn/v1/messages
+- Gemini协议兼容调用参考：Gemini快速开始，Base URL：https://api.modelverse.cn
+<h4 id="section-26">使用 Gemini AI Studio(白嫖300dollars)</h4>
+<blockquote>
+<p>需要：</p>
+<ul>
+<li>google账号，新用户</li>
+<li>一张Visa或者MasterCard卡 (google现在会做10刀验证，不会扣钱)</li>
+<li>一个虚拟地址
+参考链接：https://zhuanlan.zhihu.com/p/2003224293643945667</li>
+</ul>
+</blockquote>
+<hr />
+<ol>
+<li>进入<a href="https://console.cloud.google.com">GCP Console</a>,创建一个新项目</li>
+<li>为你的账户添加权限，具体来说需要你的用户具有<code>orgpolicy.policyAdmin</code>权限(具体权限有好几个，我是用codex自动帮我添加的)</li>
+</ol>
+<p><img src="../../images/cloud.png" alt="alt text" /></p>
+<ol start="3">
+<li>创建并下载 JSON 格式的密钥文件，</li>
+<li>将JSON密钥改为项目根目录下的<code>gcp-servive-account.json</code></li>
+<li>在<code>.env</code>中设置Vertex 格式</li>
+</ol>
+<pre><code>AI_PROVIDER_FORMAT=vertex
+VERTEX_PROJECT_ID=your-gcp-project-id # 项目id
+VERTEX_LOCATION=global
+GOOGLE_APPLICATION_CREDENTIALS=./gcp-service-account.json
+</code></pre>
+<blockquote>
+<p>注意：如果使用了Vertex，前端界面就不能再重新设置了，最好在<code>.env</code>中全部设置好，否则会覆盖<code>,env</code>？</p>
+</blockquote>
+<ol start="6">
+<li>如果使用 Docker 部署，还需要在 docker-compose.yml 中取消相关注释，将密钥文件挂载到容器内并设置 GOOGLE_APPLICATION_CREDENTIALS 环境变量。</li>
+</ol>
+<pre><code class="language-bash">20 environment:
+21      - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-sa-key.json
+...
+28 - ./gcp-service-account.json:/app/gcp-sa-key.json:ro
+</code></pre>
+<blockquote>
+<p>gemini-3-* 系列模型要求 VERTEX_LOCATION=global</p>
+</blockquote>
+<blockquote>
+<p>在测试中发现，代码中对于图像识别的Vertex模型格式目前并没有配置好，我本人是采用了其他来源的图像识别模型。这部分可以用AI修改代码使得完全匹配。</p>
+</blockquote>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">一、关于Banana-slides</a><a href="#section-4">二、 Banana功能介绍</a><a href="#section-10">三、Banana Docker本地部署</a><a href="#section-15">四、使用技巧</a><a href="#section-16">五、 技术架构</a><a href="#section-19">六、项目结构</a><a href="#section-20">七、关于API接口配置</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>

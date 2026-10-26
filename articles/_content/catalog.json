@@ -1,0 +1,28 @@
+[
+  {
+    "slug": "banana-slides",
+    "title": "Banana-slides：AI PPT 工具上手记录",
+    "date": "2026-03-25",
+    "category": "开发工具",
+    "tags": ["AI PPT", "Docker", "工具实践"],
+    "summary": "从创作流程到本地部署，记录 Banana-slides 的使用方式、项目结构与接口配置。",
+    "label": "AI TOOLS",
+    "cover": "From idea to slides.",
+    "subtitle": "想法 → 大纲 → 演示文稿",
+    "color": "",
+    "minutes": 12
+  },
+  {
+    "slug": "scout-mini-1",
+    "title": "Scout Mini 自主导航（一）：连接底盘与 ROS",
+    "date": "2026-03-23",
+    "category": "机器人",
+    "tags": ["Robotics", "ROS", "Navigation"],
+    "summary": "从硬件接线开始，逐步记录 CAN 通信测试、ROS 工作空间配置与键盘控制流程。",
+    "label": "ROBOTICS",
+    "cover": "Connect. Control. Explore.",
+    "subtitle": "SCOUT MINI / CAN / ROS",
+    "color": "blue",
+    "minutes": 5
+  }
+]
