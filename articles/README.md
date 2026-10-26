@@ -27,3 +27,11 @@
 在仓库根目录运行 `py -m http.server 8000`，打开 `http://localhost:8000/articles/`。预览服务器不编译原有 Jekyll 主页，返回个人主页的链接需在实际 Jekyll/GitHub Pages 环境验证。
 
 本栏目没有自动抓取论文、账号系统或后台服务；搜索范围为文章标题、摘要、分类和标签。页面可以直接加入现有 GitHub Pages 部署。
+
+## 论文精读元数据
+
+论文记录使用 `type: "paper"`，并设置 `source_url`、`source_version`、`published_date`、`recorded_date`、`updated_date`、`reading_scope`。阅读页分别展示原文发布日期、整理日期和更新日期，并提供固定版本原文链接。没有 `type` 的旧记录继续使用历史笔记样式，正文和原有日期不变。
+
+首页按 `date` 倒序排列：新精读使用笔记整理日期，历史笔记保留原笔记日期；不是按论文发表日期排列。未知的 `published_date` 可以留空，页面显示“未知”。`reading_scope` 应说明实际阅读范围和复现情况。
+
+精读示例：`_content/embodied-turing-machines.md`。其中框架图来自 arXiv:2610.12369v1 图 3，正文给出来源与页码。生成器不会下载、阅读或总结论文，内容整理流程见仓库根目录 `SOP.md`。

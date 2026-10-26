@@ -1,5 +1,25 @@
 [
   {
+    "slug": "embodied-turing-machines",
+    "title": "Embodied Turing Machines 精读：让有状态代码成为机器人策略",
+    "date": "2026-10-26",
+    "type": "paper",
+    "source_url": "https://arxiv.org/pdf/2610.12369v1",
+    "source_version": "arXiv:2610.12369v1",
+    "published_date": "2026-10-08",
+    "recorded_date": "2026-10-26",
+    "updated_date": "2026-10-26",
+    "reading_scope": "已阅读正文与附录，结果为作者报告，尚未复现实验",
+    "category": "论文精读",
+    "tags": ["COAP", "VLA", "RSI", "机器人"],
+    "summary": "从显式状态、代码技能到离线自改进，解读 COAP 的方法与实验，辨析 70.24% 成功率、仿真先验和在线效率的适用边界。",
+    "label": "PAPER NOTES",
+    "cover": "State. Code. Improve.",
+    "subtitle": "COAP / 具身图灵机 / 递归自改进",
+    "color": "blue",
+    "minutes": 18
+  },
+  {
     "slug": "banana-slides",
     "title": "Banana-slides：AI PPT 工具上手记录",
     "date": "2026-03-25",
