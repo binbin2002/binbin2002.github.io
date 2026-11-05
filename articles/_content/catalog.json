@@ -1,5 +1,53 @@
 [
   {
+    "slug": "rollout-then-recycle",
+    "title": "Rollout then Recycle 精读：把真实失败轨迹变成可用的后训练数据",
+    "date": "2026-11-05",
+    "type": "paper",
+    "source_url": "https://arxiv.org/pdf/2611.03168v1",
+    "source_version": "arXiv:2611.03168v1",
+    "published_date": "2026-11-02",
+    "recorded_date": "2026-11-05",
+    "updated_date": "2026-11-05",
+    "reading_scope": "已核验可访问正文、实验或数据说明与局限；未独立复现",
+    "category": "论文精读",
+    "tags": [
+      "VLA",
+      "数据闭环",
+      "离线RL"
+    ],
+    "summary": "从真实失败数据开放出发，检查终止语义、多相机泄漏与 TD3/RECAP 的正确接入方式。",
+    "label": "PAPER NOTES",
+    "cover": "Fail. Audit. Recycle.",
+    "subtitle": "VLA / 数据闭环 / 离线RL",
+    "color": "blue",
+    "minutes": 8
+  },
+  {
+    "slug": "pts-same-path-less-time",
+    "title": "PTS 精读：异步 VLA 加速为何必须按路径进度对齐",
+    "date": "2026-11-05",
+    "type": "paper",
+    "source_url": "https://arxiv.org/pdf/2611.01390v1",
+    "source_version": "arXiv:2611.01390v1",
+    "published_date": "2026-11-01",
+    "recorded_date": "2026-11-05",
+    "updated_date": "2026-11-05",
+    "reading_scope": "已核验可访问正文、实验或数据说明与局限；未独立复现",
+    "category": "论文精读",
+    "tags": [
+      "VLA",
+      "RTC",
+      "异步推理"
+    ],
+    "summary": "拆解异步接入、路径进度和速度控制，辨析仿真吞吐提升的条件与真机迁移风险。",
+    "label": "PAPER NOTES",
+    "cover": "Path. Progress. Time.",
+    "subtitle": "VLA / RTC / 异步推理",
+    "color": "blue",
+    "minutes": 9
+  },
+  {
     "slug": "embodied-turing-machines",
     "title": "Embodied Turing Machines 精读：让有状态代码成为机器人策略",
     "date": "2026-10-26",
@@ -11,7 +59,12 @@
     "updated_date": "2026-10-26",
     "reading_scope": "已阅读正文与附录，结果为作者报告，尚未复现实验",
     "category": "论文精读",
-    "tags": ["COAP", "VLA", "RSI", "机器人"],
+    "tags": [
+      "COAP",
+      "VLA",
+      "RSI",
+      "机器人"
+    ],
     "summary": "从显式状态、代码技能到离线自改进，解读 COAP 的方法与实验，辨析 70.24% 成功率、仿真先验和在线效率的适用边界。",
     "label": "PAPER NOTES",
     "cover": "State. Code. Improve.",
@@ -24,7 +77,11 @@
     "title": "Banana-slides：AI PPT 工具上手记录",
     "date": "2026-03-25",
     "category": "开发工具",
-    "tags": ["AI PPT", "Docker", "工具实践"],
+    "tags": [
+      "AI PPT",
+      "Docker",
+      "工具实践"
+    ],
     "summary": "从创作流程到本地部署，记录 Banana-slides 的使用方式、项目结构与接口配置。",
     "label": "AI TOOLS",
     "cover": "From idea to slides.",
@@ -37,7 +94,11 @@
     "title": "Scout Mini 自主导航（一）：连接底盘与 ROS",
     "date": "2026-03-23",
     "category": "机器人",
-    "tags": ["Robotics", "ROS", "Navigation"],
+    "tags": [
+      "Robotics",
+      "ROS",
+      "Navigation"
+    ],
     "summary": "从硬件接线开始，逐步记录 CAN 通信测试、ROS 工作空间配置与键盘控制流程。",
     "label": "ROBOTICS",
     "cover": "Connect. Control. Explore.",

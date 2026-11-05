@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PTS 精读：异步 VLA 加速为何必须按路径进度对齐 · Wenbin's Research Notes</title><meta name="description" content="拆解异步接入、路径进度和速度控制，辨析仿真吞吐提升的条件与真机迁移风险。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>PTS 精读：异步 VLA 加速为何必须按路径进度对齐</h1><p class="intro">拆解异步接入、路径进度和速度控制，辨析仿真吞吐提升的条件与真机迁移风险。</p><div class="article-meta">原文发布 2026-11-01 · 笔记整理 2026-11-05 · 更新 2026-11-05 · 约 9 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">RTC</span><span class="tag">异步推理</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.01390v1。已核验可访问正文、实验或数据说明与局限；未独立复现。<a href="https://arxiv.org/pdf/2611.01390v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息</h2>
+<p>原文：Fuyi Chen，Same Path, Less Time: Training-Free Fast Execution of Vision-Language-Action Models under Inference Latency。首次提交 2026-11-01，本次按 arXiv:2611.01390v1 整理，笔记日期与更新日期均为 2026-11-05。阅读范围为可访问的正文、实验表格与附录文字；未复现实验。属于过去七天的新论文，不是旧工作重新报道。</p>
+<p>原始入口：<a href="https://arxiv.org/abs/2611.01390">论文与全文</a>、<a href="https://arxiv.org/pdf/2611.01390v1">固定版本 PDF</a>。截至整理日未核验到作者公开的 PTS 实现或专用权重，不能将它引用的 LeRobot 基座当成方法已开源。</p>
+<h2 id="section-2">一句话总结</h2>
+<p>PTS 不重新训练策略，而将参考路径和执行速度分开：新动作块按推理期间实际消耗的路径进度接入，夹爪事件附近不加速。它针对的是“异步后又加速，导致动作块索引错位”，而不只是缩短网络推理。</p>
+<h2 id="section-3">研究问题与已有工作的差别</h2>
+<p><a href="https://arxiv.org/abs/2611.01390">原文 §3–4</a>以相对末端增量为对象，采用确定性单步解码、累计增量执行、夹爪同步和速率上限四项规则。与文中 RTC 基线的前缀引导相比，这里主要维护路径进度与时间的对应；不能据此说 RTC 只会平滑边界，也不能将两者的时延差异忽略。</p>
+<h2 id="section-4">方法与公式直觉</h2>
+<p>将累计路径记为 Φ，当前进度为 p，每次消费 ρ 个计划步，则指令写为 <code>u = Φ(p + ρ) − Φ(p)</code>。例如沿路径先右移再上移，直接放大某一个瞬时动作不等于走完两段；累计差分才保留该段净位移。返回的 chunk 应从已经消费的进度 m 开始，而非从索引零重放。</p>
+<p>§4.2 给出的恒速近似可行条件是 <code>2rd + s ≤ H</code>：r 是执行倍率，d 是推理延迟控制步数，s 是请求间隔的计划步数，H 是 chunk 长度。它不是普适的队列安全定理；前缀不一致、变速与离散取整都会影响余量。夹爪动作期间回到 1 倍速，避免机械臂先走而手指尚未闭合。</p>
+<h2 id="section-5">实验与消融证据</h2>
+<p><a href="https://arxiv.org/abs/2611.01390">§5、表 1–3</a>均为作者仿真结果。静态 LIBERO 使用冻结 π0.5 和 SmolVLA、注入推理时延，每个 suite/方法测试 100 回合。相对各自最强可部署基线，吞吐分别提高 33% 和 104%；同单步解码对照更适合隔离时间层贡献。动态测试中 PTS 与普通异步执行没有显著吞吐差异，不能称作动态控制全面提升。消融提示错误的 chunk 接入点尤其有害。</p>
+<h2 id="section-6">局限与复现检查</h2>
+<p>原文 §6 与附录 A 明示前缀一致性和执行器近似线性假设；无真机验证。附录 B.3 还将控制器输入/输出边界放大以容纳求和指令，这是复现条件，不可直接照搬到真实驱动。旋转、接触和多模态路径也不能从平移增量恒等式获得安全保证。</p>
+<h2 id="section-7">可迁移实验：先测 bookkeeping，再测速度</h2>
+<p>以下是分析建议，不是作者已经验证的结论。现有 RTC 管线可以先保持 H、触发阈值、blend、采样步数和夹爪参数不变，新增累计进度日志。对每次请求记录图像时间、返回时间、执行倍率积分、旧块已消费区间、新块接入索引和队列剩余量，检查 skip/delay 回退后是否重复或遗漏位移。不要把“少等待”和“加快运动”放在同一个开关下。</p>
+<p>第一组同条件比较：当前 RTC、普通异步加固定索引、按消费进度接入。第二组只在已验证的进度对齐上扫描 1、1.1、1.25 倍速，夹爪与接触阶段固定 1 倍；最后才更换单步解码，以隔离模型变化。固定初态、随机种子、相机频率和同一检查点，按回合配对统计成功率、总耗时、重置成本、P99 观测年龄、边界加速度和队列耗尽次数。</p>
+<p>对 Joint-absolute 输出，不能直接求和绝对角度；必须先定义相容的参考轨迹和插值。对 6D 旋转表示也不能逐元素累加，应通过明确的旋转组合与插值处理。最初只做仿真或低速空载测试，保留关节限位、速度/加速度约束及急停。</p>
+<h2 id="section-8">面试追问与精读路线</h2>
+<p>优先读 §4.1–4.2、§5.3、§6 和附录 B.3。面试可以围绕三个问题展开：异步执行为什么需要以“路径消费量”而不是墙钟索引接入？网络快了为什么也可能改变控制分布？一次任务更快但失败重置更贵时，应如何评价吞吐？回答时把系统对齐、动作表示和安全约束分开，避免把训练免费说成标定免费。</p>
+<h2 id="section-9">原始资源</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2611.01390v1">arXiv:2611.01390v1</a>：方法 §4；实验 §5；限制 §6；假设与控制器附录 A/B。</li>
+<li>整理记录：2026-11-05 首次入库；全文文字核验，未运行作者实验，公开代码状态尚未核验到。</li>
+</ul>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息</a><a href="#section-2">一句话总结</a><a href="#section-3">研究问题与已有工作的差别</a><a href="#section-4">方法与公式直觉</a><a href="#section-5">实验与消融证据</a><a href="#section-6">局限与复现检查</a><a href="#section-7">可迁移实验：先测 bookkeeping，再测速度</a><a href="#section-8">面试追问与精读路线</a><a href="#section-9">原始资源</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>
