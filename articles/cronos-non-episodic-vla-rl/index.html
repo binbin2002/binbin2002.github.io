@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRONOS 精读：把场景重置算进 VLA 强化学习预算 · Wenbin's Research Notes</title><meta name="description" content="拆分机械臂归位与场景恢复，审计特权状态限制，设计同交互步及同人工预算的后训练对照。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>CRONOS 精读：把场景重置算进 VLA 强化学习预算</h1><p class="intro">拆分机械臂归位与场景恢复，审计特权状态限制，设计同交互步及同人工预算的后训练对照。</p><div class="article-meta">原文发布 2026-11-03 · 笔记整理 2026-11-06 · 更新 2026-11-06 · 约 11 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">强化学习</span><span class="tag">自主改进</span><span class="tag">数据闭环</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.05080v1。已阅读全文实验、重置消融及附录 A–C；仅仿真结果，未独立复现。<a href="https://arxiv.org/pdf/2611.05080v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与阅读范围</h2>
+<p>原文 CRONOS: Benchmarking Non-Episodic Reinforcement Learning for Robotic Manipulation，作者 Po-Yi Wu、Djengo Cyun-Jyun Fang、Dian Cheng、Tsung-Wei Ke。首次提交于 2026-11-03 15:41 UTC；本次读取 arXiv:2611.05080v1，该版本日期为 2026-11-03。笔记整理和实质修订日期均为 2026-11-06，属于本周新论文补读，而非当日首发。</p>
+<p>已阅读正文、算法、超参数、重置策略附录及作者项目页；未独立复现。<a href="https://arxiv.org/html/2611.05080v1">固定全文</a>、<a href="https://arxiv.org/pdf/2611.05080v1">PDF</a>、<a href="https://arxiv.org/abs/2611.05080">版本历史</a>、<a href="https://embodiedai-ntu.github.io/cronos/">项目页</a>提供核验入口。项目页有 Code 按钮，但本次检查未得到可核验的独立实现仓库或模型下载；因此只记为论文与演示可访问，不标记代码/权重已经开放。</p>
+<h2 id="section-2">一句话总结</h2>
+<p>减少场景重置会改变策略遇到的状态分布；在这个新分布里，选择何时重置、重置什么，比笼统追求 reset-free 更重要。</p>
+<h2 id="section-3">研究问题与具体变化</h2>
+<p><a href="https://arxiv.org/html/2611.05080v1#S2">§2–3</a>将每个任务完成后恢复初始场景的 episodic RL，改为多个任务在同一场景连续执行。它不是新的 VLA 表征或优化器，而是针对预训练 VLA 后训练的评测设置和系统诊断：上一任务留下的物体及机械臂状态，将成为下一任务的起点。</p>
+<p>重置后的状态核可写为 <code>P_reset = (1 − ε) P + ε ρ</code>。直觉上，重置不只是增加一次等待，而是重新把访问分布拉向初态 ρ；降低 ε 会让错误累积、不可恢复状态和分布外状态出现得更频繁。论文实际实验主要使用固定间隔及启发式判据，上式是抽象建模，不能把所有实验理解为按每步独立抛硬币重置。</p>
+<p>对专家/DAgger 闭环的启发是：人工扶正物体既是成本，也是对训练分布的干预。只比较采集了多少条轨迹，可能把被人工反复清理过的简单状态与连续自主运行的困难状态混在一起。</p>
+<h2 id="section-4">方法：区分机械臂归位与场景恢复</h2>
+<p><a href="https://arxiv.org/html/2611.05080v1#S3.SS1">§3.1</a>构建 4 个共享场景，每场景 2 个物体和 2 个容器，组成 16 个抓取放置任务；每任务 80 个交互步。场景重置间隔 T=80、320、2560，分别相当于每 1、4、32 个任务恢复场景，使用 ManiSkill3/SimplerEnv 体系与 PPO 微调 OpenVLA、SpatialVLA。</p>
+<p><a href="https://arxiv.org/html/2611.05080v1#S4">§4</a>分别检查三种干预。EER 在任务切换时只让末端回到标准姿态，不搬动物体；课程重置先较频繁恢复场景，再拉长间隔；HSR 在物体掉桌或离开可达工作空间时提前请求场景恢复。附录 C 的学习式 reset 和扰动任务则把恢复也交给策略，但没有在本设置下解决问题。不能因此泛化为“学习重置永远无效”。</p>
+<h2 id="section-5">关键实验与证据边界</h2>
+<p><a href="https://arxiv.org/html/2611.05080v1#S4.SS3">§4.3、图 7–9</a>报告 SpatialVLA 在长重置间隔下，加入 HSR 后域内成功率由 14% 提升至 64%；在固定 1000 次场景重置预算下仍优于比较策略。这个对照支持有选择地重置，但检测器使用模拟器特权状态，不能说已用视觉判断真机不可恢复性。</p>
+<p><a href="https://arxiv.org/html/2611.05080v1#S5.T1">§5、表 1</a>使用同样 2.9M 交互步比较 T=80 与 T=320。SpatialVLA 在未见 Overlap 布局中为 55.2%→64.3%，Cluttered 中为 51.2%→55.0%；后者的改善较小，不能用单个较大提升代表全部场景。T=320 使用约四分之一的周期场景重置，但仍有 EER，不是无重置训练。表内明确总评估回合数和多种子方差未在本次全文定位到；这里按作者报告记录比例，不补造样本量、置信区间或显著性。</p>
+<p><a href="https://arxiv.org/html/2611.05080v1#S5.SS2">§5.2</a>进一步测试连续四任务：收益随后续任务出现，而不只是初态成功。它支持把长时间运行纳入验证集，但本文主要是仿真抓取放置，尚无真机、接触装配或连续 VLN 的同类证据。<a href="https://arxiv.org/html/2611.05080v1#S7">§7 局限</a>明确把感知式不可恢复检测和接触丰富任务留给后续工作。</p>
+<h2 id="section-6">与现有后训练路线怎样衔接</h2>
+<p>CRONOS 没有提出取代 RLToken、TD3 或 RECAP 的算法。可迁移的是预算和分布设计：现有 TD3 actor 已经包含 <code>z_rl + proprio + ref_chunk</code>，应先保持表征和输入不变，再研究重置调度。否则输入改动、优化器改动与状态分布变化混在一起，很难解释收益。</p>
+<p>对分布式 value/advantage，需要额外记录任务身份、真实终止、安全中止、时间截断和场景重置原因。物体没有恢复不代表价值应该跨任意指令继续 bootstrap；是否跨任务延续回报取决于定义的 MDP，不能仅凭“连续执行”决定。该部分是实现审计建议，不是论文已经验证了现有 RECAP 管线。</p>
+<h2 id="section-7">迁移实验：用两个预算回答两个问题</h2>
+<p>以下为建议实验。先选双臂平台上可逆、非接触、低风险的桌面搬运，不从精密插接开始。冻结现有策略初始化、动作表示、奖励、数据采样比和优化步数，比较每任务恢复场景、每四任务恢复场景、每四任务恢复加保守不可恢复检测三组。EER 作为独立因子开关，并把归位时间计入成本；检测不确定时请求人工恢复，而非持续探索。</p>
+<p>分别作同交互步预算和同人工分钟预算的对照，不要求二者同时相等。记录任务成功率、每小时成功任务数、人工恢复秒数、接管次数、可恢复状态占比及连续任务序号上的成功衰减。已有 100 条专家加四轮 220 条 DAgger 数据可用于分层审计：按初态、偏离、恢复前后和干预原因检查覆盖，不能事后假定这些数据天然对应本文非 episodic 协议。</p>
+<p>安全检测先采用保守可达区域、夹爪/物体状态和人工确认，避免将模拟器真值阈值当成相机检测器。归位必须通过碰撞检查；物体掉桌、双臂可能相碰或传感器失效时立即停止，不把安全中止当成等待更多 RL 探索的机会。</p>
+<p>对 Hi-Nav，后续可用相同思想审计连续指令执行：区分局部规划恢复、机器人回起点和地图重建三种“重置”，报告各自成本及连续任务退化。保持 ISOM 和航点推理不变再扫描恢复策略；本文没有证明这种迁移能提高 VLN-CE 的 SR/SPL，应作为独立假设验证。</p>
+<h2 id="section-8">精读路线与面试追问</h2>
+<p>优先读 §4.1 的归位消融、§4.3 的同重置预算、§5 的同交互步对照，以及附录 A 的任务切换逻辑。代码开放后先查 reset 与 done/truncated 的处理、恢复动作是否计费，以及采样器是否在任务变化后正确刷新指令和价值条件。</p>
+<p>面试值得追问：少重置为何反而可能浪费更多交互？自动归位是否真的免费？同轨迹数与同人工预算会给出怎样不同的排名？不可恢复检测的误报和漏报怎样计价？把 reset-free 拆成状态分布、恢复可达性、任务终止和人工成本，会比只强调自主运行时长更扎实。</p>
+<h2 id="section-9">原始资源与修订记录</h2>
+<p><a href="https://arxiv.org/html/2611.05080v1">论文 v1</a>；<a href="https://arxiv.org/pdf/2611.05080v1">固定 PDF</a>；<a href="https://embodiedai-ntu.github.io/cronos/">项目页</a>。2026-11-06 首次入库；未独立复现，未确认代码/权重发布，明确保留样本量与特权状态限制。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与阅读范围</a><a href="#section-2">一句话总结</a><a href="#section-3">研究问题与具体变化</a><a href="#section-4">方法：区分机械臂归位与场景恢复</a><a href="#section-5">关键实验与证据边界</a><a href="#section-6">与现有后训练路线怎样衔接</a><a href="#section-7">迁移实验：用两个预算回答两个问题</a><a href="#section-8">精读路线与面试追问</a><a href="#section-9">原始资源与修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>

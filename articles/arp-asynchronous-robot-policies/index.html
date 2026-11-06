@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARP 精读：让慢语义与快视觉控制真正异步 · Wenbin's Research Notes</title><meta name="description" content="解读缓存年龄训练与双速率策略，核对实验口径，连接 RTC 和 Hi-Nav 的时间戳及过期目标处理。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>ARP 精读：让慢语义与快视觉控制真正异步</h1><p class="intro">解读缓存年龄训练与双速率策略，核对实验口径，连接 RTC 和 Hi-Nav 的时间戳及过期目标处理。</p><div class="article-meta">原文发布 2026-11-03 · 笔记整理 2026-11-06 · 更新 2026-11-06 · 约 12 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">RTC</span><span class="tag">异步推理</span><span class="tag">ROS2</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.05155v1。已阅读全文方法、主实验、消融及附录 A–D；核对表 5 算术差异，未独立复现。<a href="https://arxiv.org/pdf/2611.05155v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与阅读范围</h2>
+<p>原文 Asynchronous Robot Policies，作者 Sombit Dey、Luc Van Gool、Danda Pani Paudel。首次提交于 2026-11-03 16:30 UTC；读取版本 arXiv:2611.05155v1，版本日期 2026-11-03。笔记整理及实质修订日期均为 2026-11-06，属于本周新论文补读，不是今日首发。</p>
+<p>已阅读正文 §1–5、附录 A–D、实验表格和作者项目说明，未独立复现。<a href="https://arxiv.org/html/2611.05155v1">固定全文</a>、<a href="https://arxiv.org/pdf/2611.05155v1">固定 PDF</a>、<a href="https://arxiv.org/abs/2611.05155">版本历史</a>、<a href="https://arp.insait.ai/">项目页</a>均作为原始入口。项目页仍标记 Code/Models soon，检查点表格不是下载已开放的证据；本次未核验到可运行代码或可下载方法权重。项目页部分标识仍为匿名占位，模型细节以固定论文版本为主。</p>
+<h2 id="section-2">一句话总结</h2>
+<p>把重 VLM 从每次动作推理的关键路径移走，让带新鲜视觉输入的轻量专家读取旧语义缓存，并在训练中明确学习缓存老化和执行延迟。</p>
+<h2 id="section-3">研究问题与相对变化</h2>
+<p><a href="https://arxiv.org/html/2611.05155v1#S3">§3</a>解决的是模型内部串行依赖：如果动作专家每次都等待 VLM 完成，再快的执行队列也不能消除这段观测到动作的延迟。慢进程产出语义记忆，快进程独立感知当前画面，二者按各自频率运行。</p>
+<p>与现有 RTC 动作块衔接问题应分开讨论：一个关心新动作块到达前如何继续执行，另一个关心快策略是否必须等待新的语义编码。ARP 自身也使用 prefix conditioning；<a href="https://arxiv.org/html/2611.05155v1#S4.T5">§4.5、表 5</a>表明作者将两者组合，而不是用 ARP 否定 RTC。它不是冻结现有 VLA 后仅增加两个线程即可获得的训练免费方案。</p>
+<h2 id="section-4">核心方法与公式直觉</h2>
+<p>记当前时刻为 t、缓存来自时刻 τ，则年龄 <code>d = t − τ</code>，快策略可写成 <code>a = π_fast(I_t, s_t, M_τ, d, ℓ)</code>，其中 ℓ 为快路径执行延迟。<a href="https://arxiv.org/html/2611.05155v1#S3.SS2">§3.2–3.3</a>将 VLM 的中间 KV 激活压缩为固定宽度记忆，快侧 Transformer 接收新视觉、proprio 和动作 token，再逐层 cross-attend 旧记忆。年龄嵌入及延迟条件使模型知道“语义上下文有多旧”。</p>
+<p><a href="https://arxiv.org/html/2611.05155v1#S3.SS4">§3.4、附录 A</a>训练时从同轨迹取旧帧计算缓存，配对较新的动作目标，并采样不同年龄；动作前缀可保持无噪且不计算 loss。这让训练条件接近实际异步执行，而非默认新旧图像永远同步。不要把缓存的写入时间当成原始图像时间，否则年龄特征会系统性低估延迟。</p>
+<p>从系统角度看，快路径不再包含 VLM 语言骨干，但仍有视觉编码、动作生成、通信与排队成本。架构解耦不等于零延迟，也不保证现有 GPU 上已经达到 30Hz 的策略更新率；ROS 驱动 30Hz 发布和策略 30Hz 重规划必须分别测量。</p>
+<h2 id="section-5">最有解释力的实验与数字核对</h2>
+<p><a href="https://arxiv.org/html/2611.05155v1#S4.SS5">§4.5、表 4</a>是优先精读的消融。1B 模型每单元测试 500 回合：只用同步缓存训练时，成功率从同步的 81.8% 降至 VLM 0.5Hz 时的 2.0%；年龄采样范围扩到 1–40 后，对应为 85.2% 和 81.8%。架构相同，说明“有缓存”和“学过旧缓存”不是一回事；也不能据此断言任意更长缓存都可靠。</p>
+<p><a href="https://arxiv.org/html/2611.05155v1#S4.SS3">§4.3、表 3</a>在目标突然移动 5cm 的 LIBERO-Perturb 仿真中报告 ARP-1B 51.5%、π0-style 1B 对照 9.5%。该诊断取 10 个任务；本次全文未定位到该表明确的总评估回合数，不能借用表 4 的 500 回合作为它的样本量，也不把仿真动态反应描述成真机动态任务验证。</p>
+<p>表 5 的同检查点 prefix 对照报告成功率 31.9%→37.5%、平均耗时 19.5s→17.1s。按印出的耗时重新计算，下降约 12.3%，不等于 Δ 行和正文中的 15.3%；此处保留原始数值并标记不一致，不沿用该百分比作为可靠结论。该表子集的明确样本量也未定位到，不能直接套用附录 D 的全量 RoboLab 960 回合。</p>
+<p><a href="https://arxiv.org/html/2611.05155v1#A4">附录 D，表 6</a>才是 120 个 RoboLab 仿真任务、每任务 8 个布局、每模型 960 回合的全量设置，平均成功率 ARP 为 20.0%，π0.5 为 37.9%；训练来源不完全一致，不能宣称 ARP 全面超过 π0.5。真机部分为三个 Franka 桌面任务、每任务每模型 10 次、90s 上限，并使用最终状态进度分数，不能把进度分数直接改写为成功率。</p>
+<h2 id="section-6">局限与开放程度</h2>
+<p><a href="https://arxiv.org/html/2611.05155v1#S5">§5</a>仍将 IPC、全双工缓存流和持久记忆列为后续问题。年龄鲁棒性主要由有限仿真频率和训练分布支持，不能直接迁移到长时间指令变化、任务重置或网络异常。论文与项目页存在部分统计口径和细节差异，应以原始日志与配置进一步澄清；目前缺少可核验发布包，适合方法验证，不适合声称已经可一键复现。</p>
+<h2 id="section-7">迁移实验：先控制年龄，再改变频率</h2>
+<p>以下为实验建议。对现有 X5 的 30Hz 驱动和 RTC H=30、D=5–6、blend=4，第一步保持模型、动作坐标与 RTC 参数不变，只补充图像采集、缓存源帧、推理完成、队列消费四类时间戳。这一步是测量基线，不等于已实现 ARP。</p>
+<p>若构建带独立新视觉的快策略，可做同数据、同训练 FLOPs 或 GPU 小时的三组对照：同步训练；旧缓存训练但不显式输入年龄；旧缓存训练加年龄/执行延迟。固定相机和快侧重规划频率，再扫描慢侧刷新率及随机抖动，报告成功率、扰动后恢复时间、P95/P99 观测年龄、队列耗尽和端到端耗时；同时记录显存和两进程争抢算力，避免将频率变化误归为纯架构收益。</p>
+<p>对 Hi-Nav，可先借用“时间戳感知的层间接口”，而不是照搬操作模型：高层指令/进度和中层 ISOM 航点带源时间及任务 epoch，低层 ROS 规划读取最新有效目标。仿真中注入高层 0.2–2 秒延迟及短暂丢包，对照仅缓存、年龄门控、年龄门控加过期重规划；统计导航成功率、SPL、碰撞和错误旧航点执行次数。指令切换后应使旧 epoch 失效；任何安全区域外航点都由低层约束拒绝。这是跨任务的工程假设，论文没有报告 VLN-CE 结果。</p>
+<h2 id="section-8">精读路线与面试追问</h2>
+<p>优先读 §3.3–3.4、表 4、附录 A 的前缀 mask 与附录 D 的多目标帧采样；代码发布后重点查时间戳语义、缓存原子切换、丢帧策略和训练采样是否一致。面试可问：异步不是简单并行在哪里？为什么快策略有新图像仍怕旧语义？策略更新 15Hz、驱动发布 30Hz 应怎样描述？何时旧语义尚可复用，何时必须失效？用时序分布、任务身份及安全回退回答，比只列吞吐更有说服力。</p>
+<h2 id="section-9">原始资源与修订记录</h2>
+<p><a href="https://arxiv.org/html/2611.05155v1">论文 v1</a>；<a href="https://arxiv.org/pdf/2611.05155v1">固定 PDF</a>；<a href="https://arp.insait.ai/">项目页</a>。2026-11-06 首次入库；记录表 5 算术不一致和开放状态，未独立复现实验。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与阅读范围</a><a href="#section-2">一句话总结</a><a href="#section-3">研究问题与相对变化</a><a href="#section-4">核心方法与公式直觉</a><a href="#section-5">最有解释力的实验与数字核对</a><a href="#section-6">局限与开放程度</a><a href="#section-7">迁移实验：先控制年龄，再改变频率</a><a href="#section-8">精读路线与面试追问</a><a href="#section-9">原始资源与修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REPAIR 精读：把 RL 专家的局部能力蒸馏回单一 VLA · Wenbin's Research Notes</title><meta name="description" content="区分专家动作分布与学生状态覆盖，设计从现有 TD3 专家到单一 VLA 的同预算蒸馏实验。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>REPAIR 精读：把 RL 专家的局部能力蒸馏回单一 VLA</h1><p class="intro">区分专家动作分布与学生状态覆盖，设计从现有 TD3 专家到单一 VLA 的同预算蒸馏实验。</p><div class="article-meta">原文发布 2026-11-02 · 笔记整理 2026-11-06 · 更新 2026-11-06 · 约 12 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">RLToken</span><span class="tag">后训练</span><span class="tag">数据闭环</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.02777v1。已阅读全文方法、实验、消融及附录 A–C；作者报告结果，未独立复现。<a href="https://arxiv.org/pdf/2611.02777v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与阅读范围</h2>
+<p>原文为 Zhennan Jiang 等的 Beyond Policy Patches: Distilling RL Specialists into Vision-Language-Action Policies。首次提交于 2026-11-02 08:53 UTC；本次读取 arXiv:2611.02777v1，该版本日期也是 2026-11-02。笔记首次整理及实质修订日期均为 2026-11-06。属于本周新论文补读，并非今日首发；截至核验时未发现后续 arXiv 版本。</p>
+<p>已阅读正文、方法公式、主实验、消融与附录 A–C；以下结果均为作者报告，未独立复现。<a href="https://arxiv.org/html/2611.02777v1">固定版本全文</a>、<a href="https://arxiv.org/pdf/2611.02777v1">PDF</a>、<a href="https://arxiv.org/abs/2611.02777">版本历史</a>、<a href="https://repair-vla.github.io/">作者项目页</a>可供核对。项目页目前提供演示；未核验到方法代码、训练配置或可下载专用权重，不能将使用 RLinf 等同于 REPAIR 已开源。</p>
+<h2 id="section-2">一句话总结</h2>
+<p>先让局部 RL 专家学会难点，再在学生自己到达的状态上，用 critic 加权的多个专家候选监督 VLA；部署时撤掉专家和切换器。</p>
+<h2 id="section-3">研究问题：学会任务不等于学会专家轨迹</h2>
+<p><a href="https://arxiv.org/html/2611.02777v1#S3">§3–4</a>区分两个缺口：专家辅助轨迹没有覆盖学生自主执行的偏离状态，而一个已执行动作也没有表达同状态下的高价值替代方案。因此，简单复制成功轨迹可能连同抖动一起学走。论文针对的不是“再加一个残差 actor”，而是残差或局部专家训练之后，怎样回收能力、简化最终策略。</p>
+<p>这一定位与现有 RLToken/TD3 路线直接相接。尤其要注意，<a href="https://arxiv.org/html/2611.02777v1#A2.SS2">本文附录 B.2 的 RLT 实现</a>本来就使用参考动作块、RL token 和 proprio 作为 actor 输入，不能把增加 ref_chunk 当作新的贡献。这里真正新增的是监督分布和学生状态覆盖，而不是输入拼接。</p>
+<h2 id="section-4">核心方法与公式直觉</h2>
+<p><a href="https://arxiv.org/html/2611.02777v1#S4.SS3">§4.3，式 1–5</a>在关键阶段状态采样多个专家动作块，用候选间的相对价值产生权重。记候选分数为 q_i，则 <code>A_i = (q_i − mean(q)) / max(std(q), ε)</code>，<code>w_i = softmax(A_i / τ)</code>；学生优化 <code>Σ_i w_i L_FM(a_i)</code>，而不是先把动作平均后作为唯一标签。直觉是保留候选分布、偏向较可靠的动作，避免直接平均不同可行模式。</p>
+<p>离线阶段从专家辅助轨迹取状态，但重新查询动作；在线阶段由学生自主执行，专家只提供标签、不接管。非关键阶段重放原 VLA 或学生预测，帮助保留原有行为。<a href="https://arxiv.org/html/2611.02777v1#A2.SS1">附录 B.1</a>使用 8 个候选、温度 0.1 和双 target critic 的较小值；仅更新 VLA action expert，冻结骨干、token 编码器和专家 actor。Critic 离线冻结、在线继续更新，不能把整个过程写成纯离线 SFT。</p>
+<p>组内标准化只能消除分数平移和尺度差异，不能修复排序错误。尤其当所有候选价值接近时，温度较低可能放大微小估计噪声；这是需要额外验证的风险分析，不是论文已经证明的失败结论。</p>
+<h2 id="section-5">关键实验、消融与适用边界</h2>
+<p><a href="https://arxiv.org/html/2611.02777v1#S5.T1">§5、表 1</a>比较六个 Franka 真机任务，每种方法每任务 30 次评估。REPAIR 与保留专家的 RLT 都为各任务 30/30；因此优势不是超过 RLT 的观测成功率，而是单一策略部署及更低的成功轨迹 jerk。初始化短任务使用 50 条、长任务 100 条人类示范；每任务适应预算同为 50 条轨迹，REPAIR 分为 30 条专家训练、10 条专家辅助采集、10 条学生采集。轨迹数相同不保证操作时长、算力或干预成本相同。</p>
+<p><a href="https://arxiv.org/html/2611.02777v1#S6">§6、表 2–3</a>提供两条更有解释力的证据。在 Dual Peg 的固定专家状态离线消融中，每设置 30 次评估，复制执行动作、单候选重查询、8 候选均匀监督、8 候选价值加权的成功率依次为 60.0%、66.7%、76.7%、90.0%。在相同 20 条蒸馏采集轨迹下，20 条专家状态的 Dual Peg/Table Clearing 为 90.0%/80.0%，10 条专家加 10 条学生状态为 100%/100%。这支持候选质量与学生分布覆盖的作用，但不构成跨任务、跨硬件的普遍保证。</p>
+<p><a href="https://arxiv.org/html/2611.02777v1#A1">附录 A</a>实际采用 H=10、10Hz 和末端相对 SE(3) 动作；不能直接外推到 30Hz、H=30 的 Joint 或 EEPose 部署。Jerk 只统计成功轨迹，存在条件样本选择；30/30 也不等于真实成功概率为 100%。<a href="https://arxiv.org/html/2611.02777v1#S7">§7</a>承认仍需阶段标注，并需直接检验学生状态上的 critic 排序。</p>
+<h2 id="section-6">迁移实验：从现有 TD3 专家到可部署学生</h2>
+<p>以下为实验建议，不是作者结果。保持现有 <code>z_rl + proprio + ref_chunk</code>、C=10 和 TD3 专家不变，先验证专家能否在学生状态上提出安全且有区别的动作。离线使用已有专家与 DAgger 数据做回放检查，但真实反事实动作的价值不能仅靠历史日志证明；候选排序须在仿真或受限低速测试中校验。</p>
+<p>首轮四组对照采用同一学生初始检查点、相同状态、相同优化步数和训练时间预算：执行动作克隆、重查询单候选、多候选均匀权重、多候选 Q 权重。记录候选有效样本量、双 critic 分歧、动作幅度及排序与实际局部成功的一致性。随后在固定新增采集预算下比较“全专家状态”和“专家/学生各半”，并把专家预训练成本、人工干预秒数分别列账。</p>
+<p>先在抓取或无接触定位阶段验证；危险插接阶段保留限位、速度/力阈值、急停和人工接管。学生自主采集不是取消安全员，发生接管的片段应独立标记，不能混称无专家接管数据。最终与当前专家辅助策略比较完整成功率、恢复成功率、全轨迹 jerk、耗时及接管次数；不要仅以平滑性替代任务正确性。</p>
+<p>若连接 RECAP 的现有分布式 value/advantage 管线，先把它作为候选排序或不确定性审计对照，保留其分布信息；不要未经实验便宣称它等价于本文的组内 Q 标准化。</p>
+<h2 id="section-7">精读路线与面试追问</h2>
+<p>优先读 §4.3 的监督构造、§6 的状态/动作分离消融，以及附录 B 的 critic 更新和坐标定义。实现上最值得先复刻的是候选扩展、权重归一化、非关键阶段 replay 和在线 critic 校准，而不是先重写全部训练系统。</p>
+<p>面试可以追问：为什么加权 loss 不等于加权动作？学生状态上的专家也会失效时怎样拒绝标签？为什么在线还要更新 critic？“单一策略部署”节省了哪些运行时组件，又增加了哪些训练成本？回答时区分能力蒸馏、DAgger 式状态覆盖和直接策略梯度优化，不把它们混为同一种后训练。</p>
+<h2 id="section-8">原始资源与修订记录</h2>
+<p><a href="https://arxiv.org/html/2611.02777v1">论文 v1 与章节索引</a>；<a href="https://arxiv.org/pdf/2611.02777v1">固定 PDF</a>；<a href="https://repair-vla.github.io/">项目演示</a>。2026-11-06 首次入库，未运行作者训练或真机实验；代码和权重开放状态按本次可访问页面记录。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与阅读范围</a><a href="#section-2">一句话总结</a><a href="#section-3">研究问题：学会任务不等于学会专家轨迹</a><a href="#section-4">核心方法与公式直觉</a><a href="#section-5">关键实验、消融与适用边界</a><a href="#section-6">迁移实验：从现有 TD3 专家到可部署学生</a><a href="#section-7">精读路线与面试追问</a><a href="#section-8">原始资源与修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>
