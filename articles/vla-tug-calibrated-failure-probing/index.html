@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VLA-Tug 精读：失败预警需要及时、可解释，也需要校准 · Wenbin's Research Notes</title><meta name="description" content="区分提前检出与误报校准，设计 X5/DAgger 的只读监控与安全接管实验。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>VLA-Tug 精读：失败预警需要及时、可解释，也需要校准</h1><p class="intro">区分提前检出与误报校准，设计 X5/DAgger 的只读监控与安全接管实验。</p><div class="article-meta">原文发布 2026-11-05 · 笔记整理 2026-11-07 · 更新 2026-11-07 · 约 11 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">失败检测</span><span class="tag">数据闭环</span><span class="tag">RTC</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.08425v1。已阅读正文方法、实验、消融、局限及附录文字；作者报告，未独立复现。<a href="https://arxiv.org/pdf/2611.08425v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与原始资源</h2>
+<p>原文 Failure Prediction and Classification in Vision-Language-Action Models Via Calibrated Latent Probing，作者 Michal P. Podolinsky、Yunhao Yang 等。首次提交 2026-11-05 18:21 UTC；读取 arXiv:2611.08425v1，版本更新日期同为 2026-11-05；整理及实质修订日期为 2026-11-07。本次为本周论文补读，非今日首发。已阅读正文、方法、实验、消融与附录文字；结果均为作者报告，未独立复现。</p>
+<p><a href="https://arxiv.org/html/2611.08425v1">固定全文</a>、<a href="https://arxiv.org/pdf/2611.08425v1">固定 PDF</a>、<a href="https://arxiv.org/abs/2611.08425">版本记录</a>、<a href="https://vla-tug.github.io/">项目页</a>可追溯来源。项目页链接到<a href="https://anonymous.4open.science/r/VLA-Tug/">匿名代码镜像</a>，但本次无法读取镜像内容；数据区仍写 link soon。论文声称发布 3,180 条仿真回合的特征和标签，不等于本次已验证下载、许可证或专用权重可用。</p>
+<h2 id="section-2">一句话总结与研究问题</h2>
+<p>复用 VLA 隐层特征预测何时、因何失败，再选择能同时约束误报与提前漏报的阈值；这首先是监控器，不是已经完成验证的自主恢复策略。</p>
+<p><a href="https://arxiv.org/html/2611.08425v1#S4">§3–4</a>将“最终能区分成功失败”改为“在标注失败起点之前报警”。每次策略调用对相机、腕部图像和指令 token 分别池化，拼成特征序列；LSTM 后接失败分数、失败类型及语义辅助头。预失败标签把失败回合起点至失败时刻的步骤标为正，之后排除；并非仅将失败前一个短窗口标正。其他标签方案通过消融比较，而非先验宣称某个时间窗口最优。</p>
+<p>这与现有 RLToken/TD3 的价值优化不同：失败分数不是 Q 或 advantage，也不是回报概率；它回答的是训练标签定义下的未来失败风险。骨干 token 与现有压缩 z_rl 能否互换，本文没有证明。</p>
+<h2 id="section-3">核心公式：按回合校准，而非按帧统计</h2>
+<p><a href="https://arxiv.org/html/2611.08425v1#S4.SS2">§4.2、附录 A.3</a>定义 <code>t_det = min{t: score_t ≥ h}</code>。FPR 是成功回合中曾报警的比例，early TPR 是失败回合中在 t_fail 之前或当时报警的比例；一个回合几百帧不能当作几百个独立校准样本。</p>
+<p>Learn-then-Test 寻找满足 <code>FPR ≤ α</code> 且 <code>early TPR ≥ β</code> 的阈值集合，并对阈值搜索作统计检验；没有通过检验的阈值就拒绝认证。该保证依赖校准与测试回合可交换，不是“每次报警都正确”，更不是任意新任务都安全。论文还给出报警精确率下界 <code>πβ / [πβ + (1−π)α]</code>，其中 π 是失败发生率；任务变简单或策略更新后，π 变化也会改变报警解释。</p>
+<h2 id="section-4">实验、消融与边界</h2>
+<p><a href="https://arxiv.org/html/2611.08425v1#A3">表 3、附录 B/C</a>采用归一化的 early-TPR–FPR 曲线面积，积分仅到 FPR=0.4，不是通常的全区间 AUROC。LIBERO-X 的 new-skill 测试中，VLA-Tug 为 39.0±7.0，SAFE-LSTM 为 30.1±8.5，标准差跨 8 个留出技能折；约 30% 是面积的相对改善，不是任务成功率提升 30 个百分点。真机数据为 Kinova 的 8 项任务、399 回合，其中 254 次失败；未见任务面积只有 25.8±11.6，对照 25.1±18.8，不能包装为真机大幅领先。</p>
+<p><a href="https://arxiv.org/html/2611.08425v1#A4.SS1">§6.2、附录 D.1</a>的联合认证分析基于 14 个 LIBERO-X 运行，而非大量独立新任务；严格 FPR 目标下可能没有阈值通过认证。真机每折仅 12–14 个校准成功回合，不足以支持论文所设联合目标的稳定认证。分布外成立比例是经验观察，不是新理论保证。</p>
+<p><a href="https://arxiv.org/html/2611.08425v1#A4">附录 D.4</a>显示预失败监督优于多种替代标签，但辅助 CLIP/类型头对检测没有一致增益；不应给全部头都加上必不可少的因果解释。<a href="https://arxiv.org/html/2611.08425v1#S7">§7</a>承认骨干层选择未系统分析，steering 仅为启发式演示、没有系统恢复评测。失败起点由视频模型标注，其语义与人工真实接管时机的一致性仍需本地审计。</p>
+<h2 id="section-5">迁移到 X5 与 DAgger 闭环</h2>
+<p>以下为分析建议。先保留现有 <code>z_rl + proprio + ref_chunk</code>、TD3 C=10 和 RTC H=30、D=5–6、blend=4，不改策略；并行训练只读监控器。对已有专家与四轮 DAgger 数据补充“失败起点”和“实际接管时刻”两个标签，不将所有干预都当作已经失败，也不把干预成功后的末段标成策略自主成功。</p>
+<p>数据按完整回合、采集轮次及任务留出，禁止相邻帧跨训练/校准集。比较相同训练预算的 z_rl-MLP、z_rl-LSTM、骨干池化 LSTM，隔离时序信息和表征来源；再独立比较全回合失败标签与预失败标签。指标包括回合 FPR、提前检出率、提前秒数、类型混淆、可认证阈值覆盖率及探针的 P99 开销，不只报 AUROC。</p>
+<p>第一阶段仅记录报警、不自动动作。通过回放与低速空载验证后，报警先触发安全暂停/人工接管；必须测量 RTC 队列剩余已承诺动作能否被控制器安全停止。探针低于 1ms 并不意味着停机低于 1ms，观测年龄、策略调用周期和制动响应都要计入。更换策略检查点后重新采集校准数据，不能直接沿用旧阈值。未来若用报警挑选 DAgger 片段，应保留随机审计样本，防止只看到探针已知的失败类型。</p>
+<h2 id="section-6">精读路线与面试追问</h2>
+<p>优先读 §4.2、附录 A.2 的标签定义、D.1 的拒绝认证和 D.4 的消融。代码可访问后先查回合切分、hidden state 清零、特征标准化及阈值校准，而不是只抄 LSTM。</p>
+<p>面试可追问：成功率提高后为何同一个报警器的精确率反而可能下降？低 FPR 为何不等于低漏报？为什么必须按回合而不是按帧校准？若部署到 RTC，报警后还有多少已排队动作？这些问题能把数据闭环、统计保证和实时系统约束连起来。</p>
+<h2 id="section-7">修订记录</h2>
+<p>2026-11-07 首次入库；完整文字与主要实验核验，未运行训练。匿名实现与数据下载状态未能完成验证，恢复能力仅按概念演示记录。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与原始资源</a><a href="#section-2">一句话总结与研究问题</a><a href="#section-3">核心公式：按回合校准，而非按帧统计</a><a href="#section-4">实验、消融与边界</a><a href="#section-5">迁移到 X5 与 DAgger 闭环</a><a href="#section-6">精读路线与面试追问</a><a href="#section-7">修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>
