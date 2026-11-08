@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OopsieRecover 精读：从少量干预提炼可迁移纠错规则 · Wenbin's Research Notes</title><meta name="description" content="从干预动作与语言解释构造局部规则，审计经验验证、实时 steering 与纠正数量比较的边界。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>OopsieRecover 精读：从少量干预提炼可迁移纠错规则</h1><p class="intro">从干预动作与语言解释构造局部规则，审计经验验证、实时 steering 与纠正数量比较的边界。</p><div class="article-meta">原文发布 2026-11-05 · 笔记整理 2026-11-08 · 更新 2026-11-08 · 约 12 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">DAgger</span><span class="tag">语义纠错</span><span class="tag">数据闭环</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.08462v1。已阅读正文方法、实验、消融或对照与局限，核验关键附录；作者报告，未独立复现。<a href="https://arxiv.org/pdf/2611.08462v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与来源</h2>
+<p>原文 OopsieRecover: Learning Transferable VLA Corrections from Semantic Interventions，Arpit Bahety、Skand Peri 等，UT Austin 与 Toyota Research Institute。首次提交 2026-11-05 18:53 UTC；读取 arXiv:2611.08462v1，版本日期同为 2026-11-05；整理及实质修订日期为 2026-11-08。本次为近期补读，非今日首发。已阅读正文方法、实验、局限及作者项目说明；以下数据均为作者报告，未独立复现。</p>
+<p><a href="https://arxiv.org/html/2611.08462v1">固定全文</a>、<a href="https://arxiv.org/pdf/2611.08462v1">PDF</a>、<a href="https://arxiv.org/abs/2611.08462">版本历史</a>、<a href="https://robin-lab.cs.utexas.edu/oopsierecover/">项目页</a>可追溯来源。本次项目页可访问演示与结果说明，未核验到官方实现仓库、训练配置或方法专用模型下载，不标记为完整开源。</p>
+<h2 id="section-2">一句话总结与研究问题</h2>
+<p>不直接把每次纠正动作再训练进 VLA，而是结合干预前后轨迹和语言解释，推断“什么时候需要纠正、应避免什么”，生成局部生效的几何代价，部署时重排序冻结 VLA 的候选动作。</p>
+<p><a href="https://arxiv.org/html/2611.08462v1#S3">§III</a>把干预分成接管前、人类控制和可选的交还控制后三段。纠正动作取决于当时状态，但“放杯子时别撞咖啡机边缘”可以跨位置复用。与本文 HG-DAgger* 对照的动作监督更新相比，变化在于把语义意图显式表示为程序，并在运行时保留纠错层；这不是已经蒸馏成单一 VLA 的方案，也不是直接用 RL 优化 Q。</p>
+<h2 id="section-3">方法与公式直觉</h2>
+<p>对象、部件和区域先经 VLM 定位、分割及深度反投影构成 3D 点集；通过区域跟踪和重新采样保持语义对应。VLM 使用实体标签与点集质心的时间变化，提出由 gate、correction 和 task 三部分组成的程序：<code>C = gate × (C_correction + λ C_task)</code>。Gate 决定何时生效，纠错项表达局部关系，任务项避免只躲避却不推进任务。<a href="https://arxiv.org/html/2611.08462v1#S3">§III-B/C</a>给出构造和细化过程。</p>
+<p>程序必须让接管前平均代价高于人类纠正段，并能在接管前触发；有多个同类干预时联合检查。阈值由已记录干预前的有效 gate 分数下界校准。这里的“校准”不是 conformal 或 Learn-then-Test 式分布保证；检查通过仅说明解释与这些记录相容。更应注意，原文允许细化预算耗尽后保留最后一轮逻辑，即使仍未通过检查，不能描述成所有部署程序都被严格验证。</p>
+<p><a href="https://arxiv.org/html/2611.08462v1#S3">§III-D</a>采样多个动作块，预测点集运动，按折扣累计代价 <code>J_k = Σ_h γ^(h−1) C(P̂_h^k)</code> 选择最小者；多条规则可加权组合。仿真使用模拟器物理，真机使用基于抓取的动态近似。有效动作不在有限候选集中时，正确规则也不能创造恢复能力；预测器忽略接触或遮挡时还可能排错候选。</p>
+<h2 id="section-4">关键实验、消融与证据边界</h2>
+<p><a href="https://arxiv.org/html/2611.08462v1#S4">§IV、图 3–5</a>在 RoboCasa 的三个任务比较同初态、同场景换物体姿态和换场景三层泛化，使用每任务 5–8 次语义纠正，报告每方法 50 回合。真机另有三个 DROID 任务，正文明确每任务使用 3–6 次纠正，每方法、任务和难度层 20 回合；指标为完成阶段比例，不是完整任务成功率。项目页报告汇总 task progress 约由 35% 提高至 61%，不能写成二元成功率提升到 61%。</p>
+<p>对比包括无 steering 的基座、相同干预数据微调的 HG-DAgger*、VLM 重标动作的 OLAF 和任务奖励 steering 的 VLS，说明纠正语义及其门控表示值得研究。但这不是所有模块充分隔离的消融：语言标注、点集、动态预测与额外推理预算共同变化，不能将全部增益归因于某一个组件。</p>
+<p>图 5 的纠正数量曲线存在文字口径不一致：图注和项目页把 84%（8 次纠正）与 HG-DAgger* 的 28%（约三倍纠正数）并列，正文末句却写成相同纠正数。应先取得原始日志澄清，不把这组数字写成已确认的同数据效率倍数。单规则十场景试验则是人为诱发特定碰撞、检查触发并观察后续 100 步，不能外推成开放任务 100% 安全恢复。</p>
+<p><a href="https://arxiv.org/html/2611.08462v1#S5">§V</a>明确不编码接触力和未观测物性，依赖 grounding、跟踪与运动预测；缺少有效候选和错误语义解释都是适用边界。当前也未见对实时推理时延的充分对照，因此不应直接承诺可接入 30Hz 管线。</p>
+<h2 id="section-5">迁移实验：给现有 DAgger 数据补上“为什么”</h2>
+<p>以下为分析建议。保持 X5 的动作表示、RTC H=30、D=5–6、blend=4 及现有 TD3 输入 <code>z_rl + proprio + ref_chunk</code>、C=10 不变。先从已有干预选出同一种失败的少量片段，补录接管原因、目标实体、适用阶段和解除条件，测试能否在未见摆放下复用规则；不是重新把 ref_chunk 加入 actor。</p>
+<p>第一组离线比较仅动作克隆、语言加全局代价、语言加门控代价，使用相同干预片段和额外标注预算；单独统计程序检查通过率、误触发率和规则冲突率。第二组在仿真保持候选 K、随机噪声和动态模型一致，仅改变规则来源，测试新物体位置下的恢复成功率、原本成功任务退化、最小间距、候选排序错误及 P99 开销。将无可行候选作为独立失败原因，而不是默认执行最低代价动作。</p>
+<p>真机先做低速、无接触的避障和放置，不将空间代价用于保证插接力安全。代码生成与执行必须隔离、白名单化并人工审查；若程序未通过检查或实体跟踪失效，应停用该规则并暂停/请求接管，不能照搬论文“保留最后一轮”的策略。更长期可以研究把验证过的规则辅助轨迹蒸馏回学生，与运行时 steering 比较，但这属于新实验，不是原文已经完成的结果。</p>
+<h2 id="section-6">精读路线与面试追问</h2>
+<p>优先读 §III-C 的阈值及细化终止条件、§III-D 的动态假设、§IV 的基线和图 5 口径，以及 §V。实现开放后优先查 gate 语义、实体重定位、程序沙箱与候选超时回退。</p>
+<p>面试可追问：一条干预为什么有多个语义解释？经验一致性检查与形式验证有什么区别？规则推断正确但候选没有恢复动作时怎么办？与 TD3 残差及专家蒸馏相比，哪一部分成本移到了部署？回答应同时核算标注、采样、预测与安全审核，而非只比较纠正条数。</p>
+<h2 id="section-7">修订记录</h2>
+<p>2026-11-08 首次入库；标注纠正数量比较的文本差异、真机进度指标及未通过检查的回退边界，未独立复现。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与来源</a><a href="#section-2">一句话总结与研究问题</a><a href="#section-3">方法与公式直觉</a><a href="#section-4">关键实验、消融与证据边界</a><a href="#section-5">迁移实验：给现有 DAgger 数据补上“为什么”</a><a href="#section-6">精读路线与面试追问</a><a href="#section-7">修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>

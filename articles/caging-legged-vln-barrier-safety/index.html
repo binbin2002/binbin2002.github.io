@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Caging Legged-VLN 精读：安全层约束执行，不替代语义正确 · Wenbin's Research Notes</title><meta name="description" content="拆解 SDF、MPPI 与 barrier 硬认证，明确地图、动力学、backup 假设及 Hi-Nav 迁移对照。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>Caging Legged-VLN 精读：安全层约束执行，不替代语义正确</h1><p class="intro">拆解 SDF、MPPI 与 barrier 硬认证，明确地图、动力学、backup 假设及 Hi-Nav 迁移对照。</p><div class="article-meta">原文发布 2026-11-03 · 笔记整理 2026-11-08 · 更新 2026-11-08 · 约 11 分钟阅读</div><div class="tags"><span class="tag">导航</span><span class="tag">VLN</span><span class="tag">安全规划</span><span class="tag">ROS</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.04972v1。已阅读正文方法、实验、消融或对照与局限，核验关键附录；作者报告，未独立复现。<a href="https://arxiv.org/pdf/2611.04972v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与来源</h2>
+<p>原文 Caging Vision-Language Navigation for Legged Robots via Barrier-Certified Safety Architecture，Abhijeet M. Kulkarni、Saimouli Katragadda、Yuze Du、Zijun Sha、Guoquan Huang。首次提交 2026-11-03 14:29 UTC；读取 arXiv:2611.04972v1，版本日期为 2026-11-03；整理及实质修订日期为 2026-11-08。近期导航补读，非今日首发。已阅读正文、真机评测、讨论和附录证明，未独立复现。</p>
+<p><a href="https://arxiv.org/html/2611.04972v1">固定全文</a>、<a href="https://arxiv.org/pdf/2611.04972v1">PDF</a>、<a href="https://arxiv.org/abs/2611.04972">版本历史</a>为原始入口；本次未核验到作者官方实现仓库或方法专用模型下载。无需重新训练语义模型，不等于安全规划器、地图接口和机器人控制已可一键部署。</p>
+<h2 id="section-2">一句话总结与定位</h2>
+<p>把语言/视觉模型输出当作导航提议，通过在线几何地图、低维 MPPI、barrier 硬检查和备份策略转换为运动；形式保证只在明确的模型与感知假设下成立。</p>
+<p><a href="https://arxiv.org/html/2611.04972v1#S5">§III–V</a>将语义与执行分开。上层离散动作先投影为局部可行目标，目标物体检测/分割可进一步细化终点；下层由里程计、SDF 和机器人 footprint 判断轨迹。它不是 R2R-CE/RxR-CE 训练与榜单论文，也没有证明改善高层指令理解。与 Hi-Nav 的关系在于可替换局部执行层，而不是已经替代 ISOM 航点推理。</p>
+<h2 id="section-3">核心方法与公式直觉</h2>
+<p>机器人用平面位置、朝向和 body twist 建模，多个 body-fixed 圆形截面近似 footprint，barrier 为 <code>h_i(x) = SDF(p_i(x)) − r_i</code>。安全状态要求所有 h_i 非负。<a href="https://arxiv.org/html/2611.04972v1#S5">§V-C</a>施加 <code>h_i(x_next) ≥ γ h_i(x)</code>，其中 0≤γ&lt;1；它限制下一步安全余量的减少速度，而不仅仅惩罚已经穿透障碍。</p>
+<p>Bézier 控制点减少 MPPI 搜索维度，soft barrier cost 引导采样；随后对各预测状态逐一硬检查，只执行通过检查的最低代价采样轨迹首动作。没有可接受候选时使用满足同一步条件的 backup。软 cost 不是保证来源；加权平均轨迹也不能不经检查便认为安全。</p>
+<p><a href="https://arxiv.org/html/2611.04972v1#A1">Theorem 1、附录 A</a>的归纳式为 <code>h_i(x_k) ≥ γ^k h_i(x_0) ≥ 0</code>。前提包括正确离散动力学、有效地图与几何模型、每个安全状态存在安全 backup、正确执行经认证的首动作及安全初态。理想平面模型中零速度可作为 backup；真实机器人有惯性、延迟和跟踪误差，“立即零速”未必可执行，不能直接借用其可行性结论。</p>
+<h2 id="section-4">实验、消融与指标边界</h2>
+<p><a href="https://arxiv.org/html/2611.04972v1#S6">§VI-C、表 I/II</a>在 G1 受控场景比较 dEBF 开关，各四种语义前端、每种 5 次，即每规划配置 20 次。关闭 JPS 的静态障碍实验，碰撞率从 80% 降为零；两组都启用 JPS 的突加障碍实验，从 100% 降为零。后者隔离的是共同全局规划条件下的局部保护，不是拿“无全局规划”对比“有全局规划”。样本有限，零观测碰撞不是部署碰撞概率为零。</p>
+<p><a href="https://arxiv.org/html/2611.04972v1#S6">§VI-D、表 III</a>另有每规划配置 75 次 G1 语言任务执行；简单与复杂类别 SR 均报告 0.75，碰撞率降低，但不能把 SR 当成同时完成且无碰撞的 E2E SR。Vision 60 仍有碰撞，作者指出细线、桌边、细杆及盲区漏入地图的问题；其类别级样本量未完整给出，不能擅自按 G1 的分母计算显著性。</p>
+<p><a href="https://arxiv.org/html/2611.04972v1#S6">§VI-E</a>的 120 次系统级对照同时启用 MPPI、JPS 和 dEBF，因此只能支持完整 cage 的总体作用，不能全部归因于 barrier。终点物体对齐实验仅 5 个关闭端点对 3 个开启端点，不能把较低均值当作充分匹配的大样本验证。</p>
+<h2 id="section-5">局限：几何安全与语言成功是两件事</h2>
+<p><a href="https://arxiv.org/html/2611.04972v1#S6">§VI-G</a>明确排除估计误差、时延和跟踪误差，无法认证未观测几何；动态障碍的安全分析仍是后续工作。目标投影到近邻空闲位置可能改变语义目标，安全层不能修复错误对象或不可达命令。规划器能安全停住却不能完成任务时，应同时报告安全、超时和语义失败，不能只报碰撞率。</p>
+<h2 id="section-6">迁移实验：保持 ISOM，单独审计执行层</h2>
+<p>以下为分析建议。固定 Hi-Nav 高层指令进度、中层语义地图/航点、速度上限和局部目标，先在仿真比较当前 ROS 局部规划、MPPI 软碰撞代价、MPPI 加软 barrier、再加硬检查与 backup。采样数、控制周期、地图分辨率和计算预算保持一致，独立扫描 γ 与地图裕量。</p>
+<p>除 SR/SPL 与碰撞外，记录最小间距、backup 触发、认证失败、规划 P99、实际停止距离和航点语义偏移；使用相同初态及障碍布置，另设地图漏障、过期地图、里程计偏差和指令突变测试。碰撞率下降但长期暂停也应判为系统未解决，而不是删除超时回合。</p>
+<p>真机从静态封闭空间、低速、软障碍开始；保留独立急停、人工看护和驱动限速。先实测最大制动延迟及跟踪误差，再在几何裕量中补偿并验证，不把理想离散定理当成误差鲁棒定理。G1 的躯干倾斜、步态摆动、手臂携物以及 X5 双臂伸展都会改变 footprint，二维点集不能无条件覆盖全身碰撞风险。</p>
+<p>ROS 接口建议对地图和目标携带源时间及任务 epoch，过期目标触发重规划；安全检查必须基于当前状态与地图，不能拿旧采样认证直接用于新一帧。若语义航点被投影后偏移过大，应向上层报告不可达并保留任务进度，而非静默宣布完成。这些是迁移工程建议，论文没有验证此完整 Hi-Nav 协议。</p>
+<h2 id="section-7">精读路线与面试追问</h2>
+<p>优先读 §V-C 的硬检查、Theorem 1/附录 A、§VI-C 的控制变量和 §VI-G。实现开放后先核对地图时间戳、footprint、fallback、首动作执行和执行反馈。</p>
+<p>面试可追问：碰撞惩罚与不变集约束差在哪里？候选平均后为什么可能失去可行性？安全停机为什么需要制动模型？零碰撞真机试验和定理分别证明了什么？这些问题可以清楚展示语义、规划、估计和控制之间的责任边界。</p>
+<h2 id="section-8">修订记录</h2>
+<p>2026-11-08 首次入库；重新核验原文而非沿用周报数值，明确三种成功指标与定理假设；未独立复现。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与来源</a><a href="#section-2">一句话总结与定位</a><a href="#section-3">核心方法与公式直觉</a><a href="#section-4">实验、消融与指标边界</a><a href="#section-5">局限：几何安全与语言成功是两件事</a><a href="#section-6">迁移实验：保持 ISOM，单独审计执行层</a><a href="#section-7">精读路线与面试追问</a><a href="#section-8">修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>
