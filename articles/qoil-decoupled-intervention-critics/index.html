@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Q-OIL 精读：干预奖励为何需要两条不同的价值回传路径 · Wenbin's Research Notes</title><meta name="description" content="用任务与乐观 critic 的不同回传目标处理次优干预，连接现有残差策略及同预算验证。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>Q-OIL 精读：干预奖励为何需要两条不同的价值回传路径</h1><p class="intro">用任务与乐观 critic 的不同回传目标处理次优干预，连接现有残差策略及同预算验证。</p><div class="article-meta">原文发布 2026-11-05 · 笔记整理 2026-11-09 · 更新 2026-11-09 · 约 11 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">强化学习</span><span class="tag">TD3</span><span class="tag">数据闭环</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.08576v1。已阅读全文方法、实验、消融与局限及关键附录；作者报告，未独立复现。<a href="https://arxiv.org/pdf/2611.08576v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与一句话总结</h2>
+<p>原文 <em>Q-OIL: Optimistic Exploration in Learning from Human Interventions</em>，Pranav Teegavarapu、Sriyash Poddar 等，University of Washington 与 Toyota Research Institute。首次提交为 2026-11-05 18:44:48 UTC；实际读取 arXiv:2611.08576v1，版本更新时间同日。整理及实质修订日期为 2026-11-09。本次是近期补读，不是今日首发。已读正文及附录 A–I，以下实验均为作者报告，未独立复现。</p>
+<p><a href="https://arxiv.org/html/2611.08576v1">固定版本全文</a>、<a href="https://arxiv.org/pdf/2611.08576v1">PDF</a>、<a href="https://arxiv.org/abs/2611.08576">版本历史</a>、<a href="https://weirdlabuw.github.io/qoil/">作者项目页</a>构成原始资源。核心思路是把接管作为局部乐观探索信号，而不是把所有人类纠正当作最优动作；任务 critic 与乐观 critic 使用不同目标，避免额外奖励通过自举一路回传至诱发接管的失败行为。</p>
+<h2 id="section-2">研究问题：干预不是标准专家演示</h2>
+<p><a href="https://arxiv.org/html/2611.08576v1#S4">§4、图 2–4 与附录 D/F</a>分析八名参与者在三个仿真任务上的 24 次训练运行，约 20 万 transition。人类往往在一段时间没有进展后接管，纠正动作也未必与收敛策略采用相同解法。作者用另行训练的参考价值函数衡量这些现象，因此“人类次优”是相对于该参考模型的结论，不是直接测得全局最优。</p>
+<p>PAM 干预模型看 <code>V*(s_t)−V*(s_{t−k})</code> 是否低于阈值，再以不同概率触发接管。它是仿真监督者模型，不是部署机器人必须在线计算的安全门。附录 F 表 1 中 PAM precision 为 0.1750、recall 为 0.6059：虽然比两个对照更好，绝对预测质量仍有限。六种方法排序的 Spearman 相关为 1，也只覆盖所选任务、参与者及预算，不能说已准确模拟任意人类。</p>
+<h2 id="section-3">方法与公式直觉：双路径不等于双 Q 取最小</h2>
+<p><a href="https://arxiv.org/html/2611.08576v1#S5">§5、算法 1</a>的目标可以简写为：</p>
+<pre><code>y_task = r_task + γ Q_task(s', π(s'))
+y_opt  = r_task + b·1[human action] + γ Q_task(s', π(s'))
+L_actor = −E[Q_opt(s,π(s))] + λ L_BC(interventions)
+</code></pre>
+<p>关键是第二行仍从 Q_task 自举，而不是从 Q_opt 自举。局部 bonus 属于实际执行的人类纠正 transition，不应错误加到接管前未执行的策略动作。普通单 critic 的奖励塑形会奖励“走到能得到接管奖励的地方”；这里切断的是额外奖励的递归 Bellman 路径。作者仍保留小权重 BC，并非完全取消动作监督。</p>
+<p>这与 TD3 用两个同目标 Q 的最小值减轻过估不同：Q_task/Q_opt 的语义、训练目标和 actor 用途都不同，每条路径内部仍可有 ensemble。即使切断显式 bonus 自举，神经网络泛化和策略分布变化仍会影响其他状态，不能称作严格空间隔离。正文关于 bonus 影响最终消退，依赖 replay 中干预比例趋零等条件；有限 replay、保留专家采样、固定干预 BC 权重时不能自动套用“无渐近偏差”。</p>
+<p><a href="https://arxiv.org/html/2611.08576v1#A5">附录 E.1、算法 2 与表 3</a>把它用于冻结 VLA 的残差 SAC：基座 H_b=32、残差 H_r=8，残差读取新观测及对应基座动作段，按关节与夹爪尺度合成执行动作。不是端到端更新 VLA，更不是本文验证过 TD3/RLToken。</p>
+<h2 id="section-4">实验、消融与适用边界</h2>
+<p><a href="https://arxiv.org/html/2611.08576v1#S6">§6、图 9</a>的 YAM 双臂实验先以每任务 25 条演示微调基座，再冻结。Bag assembly 完整任务成功率 Q-OIL 为 50%，BC+RL 为 0%，评估 30 回合；coffee pouring 为 70% 对 30%，仅 10 回合。首次抓取/交接和完整任务分别计分，不能混用。咖啡任务使用咖啡豆，完整成功要求至少一半倒入容器，不是液体控制验证。干预控制步占比在两任务分别为 18.1% 对 25.2%、10.7% 对 23.8%，不是操作者人数或总耗时。</p>
+<p><a href="https://arxiv.org/html/2611.08576v1#A1">图 10 与附录 A/H</a>检验 critic 解耦、BC、bonus 和纠正质量。去掉解耦后大 bonus 导致性能退化；仿真三任务、三随机种子的专家质量分组表明，完美纠正时模仿基线也有竞争力。真机 Franka 三任务的动作还被简化为三维平移加离散夹爪，不能将其结果等同于双臂六维姿态接触操作。</p>
+<p>作者承认参与者少、任务集中于桌面。真实 Franka 训练由单人干预；双臂评估回合少，未见足够证据将百分比差异外推为普适提升。人力重置仍存在；同环境交互步数不等于同人工分钟，也不等于同训练计算量。</p>
+<h2 id="section-5">开放程度与建议精读位置</h2>
+<p>截至整理日，作者项目页明确写着 Code (coming soon)，可访问论文、视频和交互演示，尚不能按完整训练实现或权重已开放处理。优先读 §5 的两个 target、图 10 的 bonus 消融、附录 E.1 的 residual action 定义及表 3；实现发布后先核验接管 transition 的动作来源、chunk 奖励折扣、terminal mask 和 replay 采样，而非只找一个 bonus 超参数。</p>
+<h2 id="section-6">迁移到 X5 的同预算实验</h2>
+<p>以下为分析建议。保留现有 <code>z_rl + proprio + ref_chunk</code>、TD3 残差 C=10，以及 RTC H=30、D=5–6、blend=4；加入 ref_chunk 不是待做的新点。先在固定离线数据与仿真上比较原 TD3、单路径 bonus、解耦 bonus 三组。为排除模型容量优势，原 TD3 加一组等参数但不供 actor 使用的辅助 critic；固定梯度步数、batch、专家与 replay 比例、BC 权重和总交互步数。</p>
+<p>在同一接管日志上逐项检查：人类实际执行动作和基座参考动作是否分开记录，C=10 内接管边界如何切段，折扣是否按控制步而非 chunk 数计算。主指标为完整成功、每千自主步成功数、干预步占比、人工分钟和重复诱发接管次数；另统计接管前后 Q_task/Q_opt 的差异与过估。离线重放不能证明新策略在线探索有效，最终需要同 reset 分布的交互验证。</p>
+<p>真机从非接触、限速、限幅任务开始，固定安全包围盒与人工急停；bonus 不是安全奖励，不能因 Q_opt 较高放开碰撞或夹爪力限制。只有确认没有“主动寻找接管”的行为后，才逐步增加插接难度。</p>
+<h2 id="section-7">面试追问与修订记录</h2>
+<p>值得准备的问题是：为什么 TD3 的 min-Q 不能替代语义解耦？怎样防止人类奖励回传到坏行为？既然不相信纠正最优，为什么还保留 BC？固定专家 replay 比例时，作者关于 bonus 消退的解释还成立吗？回答应分别谈目标设计、函数逼近、采样分布和有限预算证据。</p>
+<p>2026-11-09 首次入库；明确 SAC 与 TD3 的迁移边界、样本量及代码未发布状态。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与一句话总结</a><a href="#section-2">研究问题：干预不是标准专家演示</a><a href="#section-3">方法与公式直觉：双路径不等于双 Q 取最小</a><a href="#section-4">实验、消融与适用边界</a><a href="#section-5">开放程度与建议精读位置</a><a href="#section-6">迁移到 X5 的同预算实验</a><a href="#section-7">面试追问与修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>

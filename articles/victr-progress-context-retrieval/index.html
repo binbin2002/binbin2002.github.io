@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VICTR 精读：用任务进度检索上下文，而不是寻找最像的画面 · Wenbin's Research Notes</title><meta name="description" content="区分进度与回报、离线特权 teacher 与在线检索，设计 X5 和 Hi-Nav 的阶段对齐实验。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>VICTR 精读：用任务进度检索上下文，而不是寻找最像的画面</h1><p class="intro">区分进度与回报、离线特权 teacher 与在线检索，设计 X5 和 Hi-Nav 的阶段对齐实验。</p><div class="article-meta">原文发布 2026-11-05 · 笔记整理 2026-11-09 · 更新 2026-11-09 · 约 11 分钟阅读</div><div class="tags"><span class="tag">VLA</span><span class="tag">进度估计</span><span class="tag">上下文学习</span><span class="tag">导航</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.08698v1。已阅读全文方法、实验、消融与局限及关键附录；作者报告，未独立复现。<a href="https://arxiv.org/pdf/2611.08698v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与一句话总结</h2>
+<p>原文 <em>VICTR: Value-Informed In-Context Learning for Vision-Language-Action Models</em>，Luca Macesanu、Tianluo Zhang 等，New York University。首次提交 2026-11-05 20:54:52 UTC；读取 arXiv:2611.08698v1，版本更新时间同日；笔记整理及实质修订日期 2026-11-09。本次为近期补读，非今日新论文。已读正文、实验及附录 A–D，作者结果未独立复现。</p>
+<p><a href="https://arxiv.org/html/2611.08698v1">固定全文</a>、<a href="https://arxiv.org/pdf/2611.08698v1">PDF</a>、<a href="https://arxiv.org/abs/2611.08698">版本历史</a>、<a href="https://ai4ce.github.io/VICTR/">项目页</a>可追溯原文。方法先将当前状态与参考演示对齐到任务进度，再检索相应阶段的观测—动作块，让已完成 in-context 后训练的 π0.5 据此生成动作；不是直接回放参考动作，也不是部署时继续更新权重。</p>
+<h2 id="section-2">问题与方法：进度是检索键，不是回报</h2>
+<p><a href="https://arxiv.org/html/2611.08698v1#S3">§III-A/B、图 2</a>为每个部署任务提供十条演示，最短成功演示作为共享参考，所有演示块形成候选池。IC-VFE 输入当前观测、任务语言及参考视频，估计进度 v_t，再取 <code>argmin_i |v_t−v_i|</code> 对应的块。视觉检索对照则使用 DINOv2 距离。视觉接近可能是“还没抓”与“抓完放回”的同一画面；任务阶段相近才可能提供适合的动作语境。</p>
+<p>检索块包含三个相机图像、proprio 及 FAST 编码动作，置于当前 query 之前。Block-causal attention 允许 query 读取示范，不允许示范反读 query；动作的低频 DCT 保留 30 个频率中的 20 个以缩短上下文。输出仍用 continuous flow-matching loss。因而“部署零更新”以事先专门训练支持 ICL 的策略为前提，不能给原始 VLA 随便拼几条视频就期望复现。</p>
+<p><a href="https://arxiv.org/html/2611.08698v1#S3.SS3">§III-C</a>明确这里的 value 是 task-relative progress，不是期望累计回报 Vπ。IC-VFE 使用冻结视觉编码器、压缩参考帧 token 和 18 层 decoder，201-bin 分类后求期望并平移到 [0,1]。参考块大多独立处理，在第 6/12/18 层跨块聚合，并加 block-index embedding。参考每视角压到 16 summary tokens，当前视角保留更细的 256 tokens，节省整段视频的上下文成本。</p>
+<p>训练 teacher Robo-Dopamine 能读取已完成 episode 的末帧，产生离线进度标签；student 部署只读当前 query 和预先可用的参考，不能访问本次 rollout 未来。分类损失为 <code>−log p(bin(progress))</code>，不是 TD 更新或 advantage conditioning。与 RECAP 的比较是本文给出的进度估计对照，不意味着 201-bin 表示天然产生可靠任务进度。</p>
+<h2 id="section-3">实验、消融与数值口径</h2>
+<p><a href="https://arxiv.org/html/2611.08698v1#S4">§IV Q1、图 4</a>自采 28 任务、1,180 episodes、7.5 小时；7 小时训练、30 分钟作为评估上下文演示池。固定平台为 YOR 双臂 Piper、头部和双腕相机，30Hz、H=30；每臂动作是 delta xyz、absolute 6D rotation 与夹爪，不能简写成全量 delta EE Pose。</p>
+<p>主评估包括八个已见与八个未见任务，每方法每任务十次 rollout，即 OOD 组共 80 回合。共同基座先训 40k 步，之后每方法再分配 10k 步；额外 IC-VFE 训练与部署检索开销并不因此消失。OOD SR：继续微调 π0.5 为 6.2%，视觉检索无插值 RICL 为 15.0%，VICTR 为 23.8%；进度分别为 28.9%、42.1%、55.5%。进度是预定义 milestone 的完成比例，不是成功率。正文局限另写 25.0% success，与主结果 23.8% 不一致，本笔记采用主实验口径并保留差异，不自行平均。</p>
+<p>原始 RICL 的动作插值在该 π0.5 设置只得 0.5% success，所以主对照使用无插值变体。这说明移植动作混合需审计，但不能据此否定原 RICL 的全部结果。附录 A 在 30 个未见 LIBERO-100 任务上也比较两种 backbone，π0.5 的 top-1 VICTR 为 45.870%，无 ICL 为 37.800%；top-4 反而低于 top-1，更多上下文不一定更好，正文未提供这里可确认的每任务 rollout 数。</p>
+<p><a href="https://arxiv.org/html/2611.08698v1#S4">表 I、图 6–8</a>进一步隔离 estimator 和 retrieval：移除参考或 block embedding 使相关指标下降；固定 IC-VLA 更换估计器时，在四 InD+四 OOD 的子集上 IC-VFE 的 OOD 进度为 62.7%，最优替代为 29.2%，不是完整八 OOD 组的主结果。等权融合视觉与进度得到 21.2% SR，低于纯进度。演示池约五条后收益趋饱和；训练/推理检索信号匹配通常更好。</p>
+<h2 id="section-4">局限与开放程度</h2>
+<p><a href="https://arxiv.org/html/2611.08698v1#S5">§V</a>承认绝对成功率低、只在同一真实环境改变对象和摆放，并未验证真正跨环境泛化。视频压缩可能损失精细阶段线索。最短参考是假定更少重试的启发式，不保证最适合当前物体；进度相近也不能消除几何失配。人工评估曲线使用 2.5 秒 smoothstep lead-in，相关性应理解为该特定标注协议下的结果。</p>
+<p>截至整理日，项目页虽显示 Code、Hugging Face 按钮，实际 href 均为 <code>#</code> 占位，未核验到可下载代码、权重或数据。原文的“释放数据”表述不能代替可用入口。本次不标完整开源。附录 B 的大模型控制 pilot 每任务每条件只有五次，不作为可靠部署方案推荐；短动作块和人工安全 harness 也不是原生模型 30Hz 控制。</p>
+<h2 id="section-5">迁移实验：分别接入 X5 和 Hi-Nav</h2>
+<p>以下是分析建议。先从现有专家及 DAgger 中选独立的参考池，将任务实例、物体摆放、整回合划分隔离，禁止相邻帧泄漏到训练和测试。保持策略、H=30 和 RTC 参数不变，对照时间比例检索、视觉检索、进度检索及人工阶段 oracle；固定演示池大小、训练步数、上下文 token 和推理 GPU 预算。现有 TD3 已有 ref_chunk，新的实验变量是参考如何选择及是否有效对齐，不是简单增加该输入。</p>
+<p>指标包括跨摆放 SR、阶段回退检出、错误阶段检索率、召回后的几何偏差、P99 推理时延和缓冲耗尽率。先离线验证，再低速执行；不直接插值示范关节动作。IC-VFE 长参考处理应缓存并测量最新 query 的年龄，超时或阶段不确定时退回原策略并允许人工接管。</p>
+<p>Hi-Nav 可以先把进度用于高层指令/进度与 ISOM 航点示例检索，保持地图、低层 ROS 规划器及航点预算固定，对照视觉最近邻和高层阶段 oracle。统计错误航点率、完成指令段比例、SR/SPL、重复探索和端到端延迟，另统计绕障造成的非单调进度。论文没有做 VLN-CE，不能把上述操作实验当作连续导航结果；进度参考也不能越过低层可达性和避障约束。</p>
+<h2 id="section-6">精读路线、面试与修订记录</h2>
+<p>优先读 §III-C 的 teacher/student 信息边界、§III-D 的训练参考池划分、§IV Q1/Q3/Q6 的完整组与子集区别，再看附录 A 的 action interpolation。未来代码开放后先检查 bin 映射、attention mask、参考缓存与 episode 切分。</p>
+<p>面试可问：进度与价值有什么区别？为什么相同进度仍不能直接复用动作？特权 teacher 是否造成未来信息泄漏？“零参数更新”是否等于零适配成本？跨场景导航出现绕路时，单调时间标签为何容易错？这些问题比只复述 6.2→23.8 更能体现后训练与部署理解。</p>
+<p>2026-11-09 首次入库；标注主结果与局限数值差异、固定场景限制、对照子集和资源占位状态。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与一句话总结</a><a href="#section-2">问题与方法：进度是检索键，不是回报</a><a href="#section-3">实验、消融与数值口径</a><a href="#section-4">局限与开放程度</a><a href="#section-5">迁移实验：分别接入 X5 和 Hi-Nav</a><a href="#section-6">精读路线、面试与修订记录</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>
