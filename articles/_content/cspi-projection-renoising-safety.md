@@ -1,0 +1,51 @@
+# CS-Pi 精读：投影后重新采样，安全边界仍要逐项审计
+
+## 基本信息与一句话总结
+
+原文 *CS-Pi: Constraint-Satisfying Flow Policy Sampling*，Soumojit Bhattacharya、Oliver Kroemer、Shubham Tulsiani，Carnegie Mellon University。首次提交 2026-11-05 20:01:08 UTC；读取 arXiv:2611.08654v1，更新时间同日；整理及实质修订日期 2026-11-10。近期补读，非今日首发；已读正文方法、实验、局限及关键附录 F/J/K/N/O/P。所有结果为作者报告，未独立复现。
+
+[固定全文](https://arxiv.org/html/2611.08654v1)、[PDF](https://arxiv.org/pdf/2611.08654v1)、[版本历史](https://arxiv.org/abs/2611.08654)、[项目页](https://sumo048.github.io/CS-pi_site/)、[官方代码](https://github.com/Sumo048/CS-Pi)可追溯来源。方法把一次投影当成下一轮采样的锚点，按投影改动大小加噪，再让冻结 flow 策略重去噪，争取同时满足约束和保留任务动作分布。
+
+## 研究问题与方法
+
+[§3、算法 1](https://arxiv.org/html/2611.08654v1#S3)指出，纯 rejection 忠于策略却可能极慢，纯 projection 可能把动作推到模型几乎不会产生的区域，避开障碍却失去抓取。CS-Pi 对当前 clean chunk a_hat 求 a_c=P(a_hat)，以 δ=||a_hat−a_c|| 决定重新采样深度：
+
+```
+n = k/(k+δ)
+a_n = n·a_c + (1−n)·epsilon
+a_next = frozen_flow_denoise(a_n, time=n→1)
+```
+
+大改动意味着锚点离原分布可能很远，加更多噪声搜索其他模式；小改动则局部细化。time=0 是噪声、time=1 是 clean，接入其他代码前先核对时间方向。软偏好可把 projection 换成 proximal solve，再按先后顺序结合硬约束。所谓“不需约束梯度”指 sampler 接口，具体投影求解器仍可能用迭代优化，不能理解为无几何、无求解成本。
+
+[附录 F](https://arxiv.org/html/2611.08654v1#A6)只在精确 posterior re-denoising 假设下给单轮条件采样分布；没有证明确定性 ODE 得到相同后验，也没有循环收敛率或最终 stationary law。不能把“投影+重采样”说成严格采自约束后的原策略分布。
+
+迭代耗尽可执行 terminal projection，但[附录 J](https://arxiv.org/html/2611.08654v1#A10)强调保证来自非空集合和精确投影，不是采样循环。硬件近似投影甚至未消除残余穿透，安全保证不能照搬。这与在 actor 外加约束的一般思路相通，但不是 TD3 残差或 RECAP value 学习；也不替代 RTC 已执行前缀的连续性约束。
+
+## 核心实验与消融
+
+[§4.2、表 2](https://arxiv.org/html/2611.08654v1#S4.SS2)的七自由度 Shelf 仿真含五场景、共 150 次任务，每场景 30 次。Safe-SR 要求无碰撞且完成抓放，CS-Pi 81.3%、一次投影 55.3%；两者共享 L-BFGS proximal step，有助于隔离迭代采样贡献。模型调用数 271 对 240，但附录 K 含求解的 wall-clock 为 76.0 对 49.0 秒/rollout，NFE 不是完整计算成本。
+
+附录 J 的关闭 terminal projection 对照让 Shelf Safe-SR 从 81.3% 降至 74.0%；两者仍高于一次投影，但完整主结果包含 fallback 的贡献。模型 log-likelihood 只表示在该 prior 下的密度，不是物理安全或任务正确性的充分条件。README 的 logL 实际估计用数值积分及 Hutchinson divergence，不能因正文称 exact 就当作无数值误差。
+
+[§4.4 表 4、附录 P](https://arxiv.org/html/2611.08654v1#S4.SS4)在 FR3、Robotiq 夹爪与 DROID 微调 π0.5 上测试苹果到盘子；两布局，每方法各十次，共 20 次。CS-Pi Safe-SR 55%，projection 40%，基座 10%；差异分别为三次和九次成功，样本较少。时延均值 0.143 秒，对 projection 0.099、原策略 0.069 秒，不是可直接接入 30Hz 的证明。硬件采用 joint velocity、15Hz 控制，而非 X5 的 EE Pose 接口。
+
+最值得读的是[附录 J/P](https://arxiv.org/html/2611.08654v1#A16)：20 次 CS-Pi trial 共 1,879 chunks，91 个触发末次投影，约 4.8%，但涉及 15/20 个 trial。触发段投影后残余穿透中位 9.7mm、P95 40.3mm，作者明确说不能认证可行性。控制器跟踪还存在约 50mm 的末端行程差，计划无碰撞不保证实际无接触。投影未包含速度/加速度限制，实际控制器未超速也不能替代命令流有效性；triggered chunks 中仍有 2.0% commanded joint-ticks 越速度界。
+
+场景几何每回合只估计一次，静态障碍、分割/深度/标定误差是重要边界。动作块短视，当前安全模式可能没有后续安全路径；约束可行集与模型支持不相交时，没有 sampler 能同时保证两者。
+
+## 实际开放程度与阅读代码
+
+官方仓库包含 sampler、constraint/policy 契约、仿真 benchmark、配置、基线和资产下载脚本；README 明确真机 Franka+π0.5 实验不在此次 release。提供预训练 prior 的资产下载机制，不等于包含可复用的真机 VLA 权重和执行全栈。本次读取 README 及[核心算法](https://github.com/Sumo048/CS-Pi/blob/main/cspi/core/algorithm.py)，未安装运行第三方机器人实现。
+
+代码与正文还需核对：正文用投影距离描述停止，而代码循环依据 constraint.violation，投影距离用于 n；具体 violation 单位和 τ 需看约束实现。代码 batch 使用最大 violation 和最大投影距离，可能由一个困难样本决定整批计算预算。fallback 后没有通用再次认证步骤，调用方不能只检查 fallback 标志就放行。
+
+## 迁移到现有系统的实验与安全限制
+
+以下为分析建议。保持 X5 原策略、H=30、D=5–6、blend=4 和 TD3 C=10 固定，先在仿真用同一几何、候选噪声、模型调用及 wall-clock 双预算比较原策略、一次投影、rejection、CS-Pi。将已承诺 RTC 前缀列为不可修改约束，分别记录前缀改动、fallback 率、投影后残余、规划与实测最近距离、SR、P99 延迟和急停率。安全集合若没有连续轨迹碰撞与速度/加速度界，必须明确缺项。
+
+不要给新采样器无限预算再与原 30Hz 系统比较。时间耗尽、投影不收敛、几何过期均停发新动作并走现有安全停止；不能默认执行“最近可行”但实际未认证的动作。先做静态、无接触、低速避障，插接力约束不从 RGB 几何推断。RLToken 的 z_rl 与 ref_chunk 输入无需重做；这项实验改变的是生成后约束采样，不是增加 actor 参考条件。
+
+对于 Hi-Nav，可借鉴的是把语义航点提议与几何可达性检查分离，但本文二维避障不是 VLN-CE；将其作为导航性能证据不成立。面试重点：模型高似然为何仍会碰撞？精确投影能保证什么、近似求解丢掉什么？单轮采样解释为何不等于收敛证明？fallback 只占 4.8% 为何仍影响大部分回合？
+
+2026-11-10 首次入库，突出硬件近似投影、计划/执行差异和真实 wall-clock 成本，未复现。
