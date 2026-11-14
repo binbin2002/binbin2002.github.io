@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EMS-Nav 精读：用功能区域缩小语言目标的搜索范围 · Wenbin's Research Notes</title><meta name="description" content="用共享实例地图隔离功能区域的收益，区分真实 RGB-D 与 Habitat 执行。">
+<script src="../assets/theme.js"></script><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="back" style="position:absolute;left:-10000px" onfocus="this.style.left='20px'" onblur="this.style.left='-10000px'" href="#main">跳转到正文</a>
+<header class="topbar"><nav class="wrap nav" aria-label="主导航"><a class="brand" href="../index.html"><span>W.</span>Research Notes</a><div class="nav-actions"><a href="../../">个人主页 ↗</a><button type="button" class="theme" data-theme-toggle>切换主题</button></div></nav></header>
+<main id="main" class="wrap"><a class="back" href="../index.html">← 返回文章库</a><header class="article-hero"><p class="eyebrow">PAPER NOTES / 论文精读</p><h1>EMS-Nav 精读：用功能区域缩小语言目标的搜索范围</h1><p class="intro">用共享实例地图隔离功能区域的收益，区分真实 RGB-D 与 Habitat 执行。</p><div class="article-meta">原文发布 2026-11-11 · 笔记整理 2026-11-14 · 更新 2026-11-14 · 约 8 分钟阅读</div><div class="tags"><span class="tag">导航</span><span class="tag">语义地图</span><span class="tag">功能区域</span><span class="tag">ROS2</span></div></header>
+<div class="reading"><article class="prose"><div class="archive-note">阅读版本：arXiv:2611.15589v1。已读正文方法、实验、消融与局限及执行附录；近期补读，未独立复现。<a href="https://arxiv.org/pdf/2611.15589v1">查看论文原文 ↗</a></div><h2 id="section-1">基本信息与一句话总结</h2>
+<p>原文 <em>EMS-Nav: Embodied Multi-Scale Navigation</em>，Zenghui Yang、Xinan Wang、Danyang Li 等。arXiv 首次提交 <strong>2026-11-11</strong>，本次读取 <a href="https://arxiv.org/pdf/2611.15589v1">2611.15589v1</a>（v1 同日，11 月 13 日列入新刊列表）。<strong>近期补读，整理及最近实质修订均为 2026-11-14</strong>。已核对正文方法、实验、消融、局限和导航执行附录，未独立复现。</p>
+<p>一句话：当指令说的是“走廊里靠近检修区的那个设备”，先用功能区域缩小候选，再查实例及关系；作者用同一份实例地图验证了这一步的独立作用。</p>
+<h2 id="section-2">问题、方法与对照</h2>
+<p>普通实例图可以回答“有哪些相似设备”，但未必能回答“哪台设备属于那个区域”。房间标签也可能太粗：同一个大厅可以同时有工作位、通道与物料区。EMS-Nav 把<strong>用于建图的粗分区</strong>和<strong>用于语言推理的功能层级</strong>分开，避免每张 RGB-D 图都重新做语义推理，也避免一次模型误判反过来修改建图关联（<a href="https://arxiv.org/html/2611.15589v1#S3">§3.1–3.3、图 2</a>）。</p>
+<p>在线层将有位姿的 RGB-D 投到世界坐标，融合几何与视觉超点。GSIF 用各向异性的高斯近似物体的平面形状，局部场叠加物体吸引、源物体与墙体排斥来提出稀疏边，再用视觉相似、距离及跨帧支持更新边权。直觉是：直线距离短不代表应归到一组，墙和物体朝向会改变局部关联。粗分区缩小下一帧候选，减少跨区无谓匹配；边是建图关系，不是机器人可通行性的证明。</p>
+<p>周期层读粗分区快照，先细分，再由 S2R 对候选区域做双向注意力和合并打分。其节点表示可理解为 <code>[自身观测与几何；门控后的邻居消息]</code>，邻居贡献上下文却不自动成为区域成员。Qwen-VL 为合并后的区域描述功能，并按空间与功能关系连接上一级；只解析发生变化的区域与受影响的父区。查询时通过区域、节点与按需关系（如 on/in/near）证据选目标，证据不足则可不返回目标。对象目标选邻近可通行的点，区域目标从外界可达的自由空间连通域选点（<a href="https://arxiv.org/pdf/2611.15589v1">§3.4、附录 B–D</a>）。相较同文复核的 HOV-SG 楼层/房间方案，变化是<strong>在归属关系里插入可由布局与用途形成的功能区</strong>，而不是替换底层控制器；也不是 R2R-CE 风格的逐段指令跟随。</p>
+<h2 id="section-3">证据、消融与适用边界</h2>
+<p>作者在 HM3D 验证集 36 个场景共 47 段给定观测轨迹、26,647 帧上建图，用完整 LangMap 的 <strong>18,628 条</strong>指令评估；一次成功须到目标 1 m 内。整体 SR@1/3/5 为 <strong>44.51/61.56/68.70%</strong>，最强总体对照 DualMap 为 <strong>35.12/51.43/58.50%</strong>（<a href="https://arxiv.org/pdf/2611.15589v1">图 5、附录 E.3 表 1</a>）。后两项允许多次尝试，不是一次运行的成功率。主比较使用相同观测但各方法的语言模块并非全部一致，不能把总体差值全部分配给地图结构。</p>
+<p>更有解释力的是同一实例图的四组消融：平铺、HOV-SG 式层级、增加功能区、再改用完整语义层级，整体 SR@1 分别 <strong>13.42%、20.78%、41.63%、44.51%</strong>（同 18,628 条，见 <a href="https://arxiv.org/html/2611.15589v1#S4.SS6">§4.6、图 10</a>）。最大的增益来自区域层增加的上下文，不是多堆一层 VLM，也不是实例分割更精细。S2R 区域聚类实验另用 ScanNet 的 312 个测试场景；比同初始化和候选规则的 MLP，ARI 从 0.61 到 0.74、B³ F1 从 0.73 到 0.87。该结果度量区域成员一致性，不等于导航控制改善。</p>
+<p>实景部分是 128 条已观测目标的指令，单次成功率 61.7%；虽然使用实际 RGB-D、RTX 4060 Ti 本地计算和 ROS2 接口，<strong>动作由 Habitat 在采集场景中执行</strong>。这是实景感知与目标落点验证，不是 128 次实体闭环运行。主试验同样用给定位姿、无动作噪声的 Habitat geodesic follower；作者指出观测断裂、语义误差传递和 ESAM 特征依赖（<a href="https://arxiv.org/pdf/2611.15589v1">§4.5、§5、附录 D–E</a>）。峰值 5.19 FPS 不能充当端到端更新时间下界，建图区间计时也不包括语言层语义解析。</p>
+<h2 id="section-4">开放程度、迁移与面试</h2>
+<p>原文声明将发布代码；截至本次核验，没有确认 EMS-Nav 主仓库、S2R 权重或完整训练数据下载。论文列出前端、推理模型量化和重建协议，并不表示专用组件已经开放。原始资源：<a href="https://arxiv.org/abs/2611.15589">版本记录</a> · <a href="https://arxiv.org/pdf/2611.15589v1">固定全文</a>。</p>
+<p><strong>迁移建议（待验证）。</strong> 在 Hi-Nav/隧道仿真保留高层进度、中层 ISOM 与同一个 ROS 规划器，给所有组相同的候选航点、RGB-D、重规划和补看预算。依次比较实例平铺、几何分区、功能分区，再测试只重算受影响的父区。用同一 Y 岔路布局成对替换任务语句和设备标签，独立注入遮挡、掉帧、位姿漂移及迟到语义快照。按场景聚合错支率、确认前额外路程、误 STOP、端到端 P95 及峰值内存；空间方向正确但进错同类设备区单列。上 Orin 先做离线回放和只读影子，语义输出不能绕过可通行门槛；观测不足时只到当前可达观察点。</p>
+<p><strong>面试追问。</strong> 为什么实例 AP 降了，目标导航仍可能更好？如何证明提升来自功能分区，而不只是多看了几次？可用共享地图与相同查询预算回答，另说明语义边与占据地图可通行边是两个接口。</p>
+<hr><a href="../index.html">← 继续浏览文章库</a></article><aside class="toc"><details open><summary>本篇目录</summary><a href="#section-1">基本信息与一句话总结</a><a href="#section-2">问题、方法与对照</a><a href="#section-3">证据、消融与适用边界</a><a href="#section-4">开放程度、迁移与面试</a></details></aside></div></main><footer class="footer"><div class="wrap"><span>WENBIN YANG · 学习、实践与研究</span><span>机器人 / 具身智能 / 开发工具</span></div></footer>
+</body></html>
